@@ -204,8 +204,8 @@ function showString() {
 	connection.send("showstring " + document.getElementById("workspace").value);
 }
 
-function openSystemBrowser() {
-	connection.send("doit SystemBrowser open");
+function openCodeBrowser() {
+	connection.send("doit CodeBrowser open");
 }
 
 function openWorkspace() {
@@ -240,6 +240,10 @@ function fileoutSources() {
 function fileinSources() {
 	document.getElementById("result").value = "";
 	connection.send("doit KitManager current fileinAllKits");
+}
+
+function stringArtWindow() {
+	connection.send("doit StringArtWindow open");
 }
 
 
@@ -364,6 +368,61 @@ function insertText (widgetId, string, offset) {
 	element.setSelectionRange(offset, offset + string.length);
 }
 
+function insertRichText(divId, text, offset) {
+    const div = document.getElementById(divId);
+    if (!div || !div.isContentEditable) {
+        console.error("Element is not a contenteditable div");
+        return;
+    }
+
+    // Flatten all text nodes in order
+    function getTextNodes(node) {
+        let nodes = [];
+        for (let child of node.childNodes) {
+            if (child.nodeType === Node.TEXT_NODE) {
+                nodes.push(child);
+            } else {
+                nodes = nodes.concat(getTextNodes(child));
+            }
+        }
+        return nodes;
+    }
+
+    const textNodes = getTextNodes(div);
+
+    let currentOffset = 0;
+    for (let node of textNodes) {
+        const nodeLength = node.textContent.length;
+
+        if (offset <= currentOffset + nodeLength) {
+            // Found insertion point in this node
+            const localOffset = offset - currentOffset;
+            const before = node.textContent.slice(0, localOffset);
+            const after = node.textContent.slice(localOffset);
+
+            const newNodes = [
+                document.createTextNode(before),
+                document.createTextNode(text),
+                document.createTextNode(after)
+            ];
+
+            const parent = node.parentNode;
+            parent.insertBefore(newNodes[0], node);
+            parent.insertBefore(newNodes[1], node);
+            parent.insertBefore(newNodes[2], node);
+            parent.removeChild(node);
+
+            return;
+        }
+
+        currentOffset += nodeLength;
+    }
+
+    // If offset is past the end, append text
+    div.appendChild(document.createTextNode(text));
+}
+
+
 function setSelectionByAbsoluteOffsets(widgetId, startOffset, endOffset) {
 	const container = document.getElementById(widgetId);
     const range = document.createRange();
@@ -459,4 +518,18 @@ function requestedFieldsCallbackNoCapture (receiver, menuId, widgetId, selector,
 	connection.send(
 		"evaluateJSON " + `[[["` + receiver + `" , "value"] ,"` + selector + `",` + JSON.stringify(map) + `]]`
 	);
+}
+
+function measureTextOnCanvas(text, font, receiver, selector) {
+  const canvas = document.createElement('canvas');
+  const context = canvas.getContext('2d');
+  context.font = font; // e.g., "16px Arial"
+
+  const metrics = context.measureText(text);
+  const width = metrics.width;
+
+  const height = metrics.actualBoundingBoxAscent + metrics.actualBoundingBoxDescent; 
+
+  connection.send (
+		"evaluateJSON " + `[[["` + receiver + `" , "value"] ,"` + selector + `",` + JSON.stringify({ width, height }) + `]]`);
 }

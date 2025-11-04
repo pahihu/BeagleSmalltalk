@@ -1,0 +1,1129 @@
+KitManager default currentKitNamed: 'Canvas Window' !
+
+KitManager default currentKit ensureLoaded: #('CoreUI') !
+
+Object subclassNamed: #CanvasCommand
+	instVarNames: ''
+	classInstVarNames: ''
+	environment: Object systemDictionary
+	kitName: 'Canvas Window' !
+
+CanvasCommand subclassNamed: #CanvasChangeFillStyleCommand
+	instVarNames: 'fillStyleString'
+	classInstVarNames: ''
+	environment: Object systemDictionary
+	kitName: 'Canvas Window' !
+
+CanvasCommand subclassNamed: #CanvasChangeFontCommand
+	instVarNames: 'fontString'
+	classInstVarNames: ''
+	environment: Object systemDictionary
+	kitName: 'Canvas Window' !
+
+CanvasCommand subclassNamed: #CanvasChangeStrokeStyleCommand
+	instVarNames: 'strokeStyleString'
+	classInstVarNames: ''
+	environment: Object systemDictionary
+	kitName: 'Canvas Window' !
+
+UIComponent subclassNamed: #CanvasComponent
+	instVarNames: 'transformation canvasPen backgroundColorString'
+	classInstVarNames: ''
+	environment: Object systemDictionary
+	kitName: 'Canvas Window' !
+
+CanvasCommand subclassNamed: #CanvasDrawCircleCommand
+	instVarNames: 'center radius filled'
+	classInstVarNames: ''
+	environment: Object systemDictionary
+	kitName: 'Canvas Window' !
+
+CanvasCommand subclassNamed: #CanvasDrawPathCommand
+	instVarNames: 'commands filled'
+	classInstVarNames: ''
+	environment: Object systemDictionary
+	kitName: 'Canvas Window' !
+
+CanvasCommand subclassNamed: #CanvasDrawTextCommand
+	instVarNames: 'text point filled'
+	classInstVarNames: ''
+	environment: Object systemDictionary
+	kitName: 'Canvas Window' !
+
+CanvasCommand subclassNamed: #CanvasLineCommand
+	instVarNames: 'point'
+	classInstVarNames: ''
+	environment: Object systemDictionary
+	kitName: 'Canvas Window' !
+
+CanvasCommand subclassNamed: #CanvasMoveCommand
+	instVarNames: 'point'
+	classInstVarNames: ''
+	environment: Object systemDictionary
+	kitName: 'Canvas Window' !
+
+Object subclassNamed: #CanvasPen
+	instVarNames: 'strokeStyle fillStyle font stream transformation commands'
+	classInstVarNames: ''
+	environment: Object systemDictionary
+	kitName: 'Canvas Window' !
+
+WebUI subclassNamed: #CanvasWindow
+	instVarNames: ''
+	classInstVarNames: ''
+	environment: Object systemDictionary
+	kitName: 'Canvas Window' !
+
+Object subclassNamed: #TwoDTransformation
+	instVarNames: 'scale translation rotation matrix inverseMatrix vectorMatrix inverseVectorMatrix'
+	classInstVarNames: ''
+	environment: Object systemDictionary
+	kitName: 'Canvas Window' !
+
+! CanvasChangeFillStyleCommand methodsFor: 'accessing' !
+drawOn: aPen
+
+	self fillStyleString = aPen fillStyle ifFalse: [
+		aPen setFillStyle: self fillStyleString ].
+
+	 aPen write: 'context.fillStyle = "', self fillStyleString, '";'! !
+
+! CanvasChangeFillStyleCommand methodsFor: 'accessing' !
+fillStyleString
+
+	^fillStyleString! !
+
+! CanvasChangeFillStyleCommand methodsFor: 'accessing' !
+fillStyleString: anObject
+
+	fillStyleString := anObject! !
+
+! CanvasChangeFontCommand methodsFor: 'accessing' !
+fontString
+
+	^fontString! !
+
+! CanvasChangeFontCommand methodsFor: 'accessing' !
+fontString: anObject
+
+	fontString := anObject! !
+
+! CanvasChangeFontCommand methodsFor: 'rendering' !
+drawOn: aPen
+
+	self fontString = aPen font ifFalse: [
+		aPen setFont: self fontString].
+
+	 aPen write: 'context.font = "', self fontString, '";'
+! !
+
+! CanvasChangeStrokeStyleCommand methodsFor: 'accessing' !
+strokeStyleString
+
+	^strokeStyleString! !
+
+! CanvasChangeStrokeStyleCommand methodsFor: 'accessing' !
+strokeStyleString: anObject
+
+	strokeStyleString := anObject! !
+
+! CanvasChangeStrokeStyleCommand methodsFor: 'rendering' !
+drawOn: aPen
+
+	self strokeStyleString = aPen strokeStyle ifFalse: [
+		aPen setStrokeStyle: self strokeStyleString ].
+
+	 aPen write: 'context.strokeStyle = "', self strokeStyleString, '";'! !
+
+! CanvasComponent methodsFor: 'accessing' !
+backgroundColorString
+
+	^backgroundColorString! !
+
+! CanvasComponent methodsFor: 'accessing' !
+backgroundColorString: anObject
+
+	backgroundColorString := anObject! !
+
+! CanvasComponent methodsFor: 'accessing' !
+canvasPen
+
+	^canvasPen! !
+
+! CanvasComponent methodsFor: 'accessing' !
+canvasPen: anObject
+
+	canvasPen := anObject! !
+
+! CanvasComponent methodsFor: 'accessing' !
+transformation
+
+	^transformation! !
+
+! CanvasComponent methodsFor: 'accessing' !
+transformation: anObject
+
+	transformation := anObject! !
+
+! CanvasComponent methodsFor: 'initializing' !
+clearScreen
+
+	self pen clear ! !
+
+! CanvasComponent methodsFor: 'initializing' !
+initialize
+
+	super initialize.
+	self backgroundColorString: 'white'.
+
+	self transformation: (TwoDTransformation new
+		scale: 2.0 @ -2.0;
+		translation: 200.0 @ 200.0;
+		computeMatrix;
+		yourself).
+
+	self canvasPen: (CanvasPen new
+		transformation: self transformation;
+		yourself).
+ ! !
+
+! CanvasComponent methodsFor: 'rendering' !
+canvasStyleString
+
+	^'background-color: ', self backgroundColorString, '; border: 1px solid black;'! !
+
+! CanvasComponent methodsFor: 'rendering' !
+draw
+
+	| canvasBounds |
+	canvasBounds := self bounds ifNil: [0@0 extent: 1@1].
+
+	self ui runJavaScript: '{ var canvas = document.getElementById(''', (self ui idFor: 'canvas'), ''');
+			canvas.width = ', canvasBounds width printString,';
+			canvas.height = ', canvasBounds height printString, ';
+			context = canvas.getContext("2d");', self drawCommands, '}'! !
+
+! CanvasComponent methodsFor: 'rendering' !
+drawCommands
+
+	^self canvasPen drawCommands ! !
+
+! CanvasComponent methodsFor: 'rendering' !
+renderOn: anHTMLBuilder
+
+	anHTMLBuilder
+		div;
+			id: (self id, 'Div');
+			bounds: self bounds;
+			attributeAt: 'width' put: '100%';
+			attributeAt: 'style' put: self styleString.
+
+	self menu isNil ifFalse: [
+		anHTMLBuilder
+			attributeAt: 'oncontextmenu' put: 'simTalkCallback2(''$', self id , ''', ''openMenuX:y:'', event.pageX, event.pageY); return false;'].
+
+	anHTMLBuilder
+			startTag: 'canvas';
+				id: (self id);
+				attributeAt: 'name' put: self id;
+				attributeAt: 'style' put: self canvasStyleString;
+			endTag: 'canvas';
+		endDiv
+   ! !
+
+! CanvasComponent methodsFor: 'rendering' !
+resize
+
+	self ui setAttribute: 'style' of: (self id, 'Div') to: self styleString.
+	self transformation translation: bounds center - self bounds origin.
+	self update! !
+
+! CanvasComponent methodsFor: 'rendering' !
+setStyle
+
+	self ui setAttribute: 'style' of: self id to: self canvasStyleString! !
+
+! CanvasComponent methodsFor: 'rendering' !
+styleString
+
+	^self bounds isNil
+		ifTrue: ['border: 1px black solid;min-height: 0;overflow: auto;']
+		ifFalse: ['border: 1px black solid;min-height: 0;position: absolute; top: ', (self bounds top) printString, 'px; left: ', (self bounds left) printString, 'px; width: ', (self bounds width) printString, 'px; height: ', (self bounds height) printString, 'px;'.].! !
+
+! CanvasDrawCircleCommand methodsFor: 'accessing' !
+center
+
+	^center! !
+
+! CanvasDrawCircleCommand methodsFor: 'accessing' !
+center: anObject
+
+	center := anObject! !
+
+! CanvasDrawCircleCommand methodsFor: 'accessing' !
+filled
+
+	^filled! !
+
+! CanvasDrawCircleCommand methodsFor: 'accessing' !
+filled: anObject
+
+	filled := anObject! !
+
+! CanvasDrawCircleCommand methodsFor: 'accessing' !
+radius
+
+	^radius! !
+
+! CanvasDrawCircleCommand methodsFor: 'accessing' !
+radius: anObject
+
+	radius := anObject! !
+
+! CanvasDrawCircleCommand methodsFor: 'initializing' !
+initialize
+
+	self filled: false! !
+
+! CanvasDrawCircleCommand methodsFor: 'rendering' !
+drawOn: aPen
+
+	| transformedPoint transformedRadius |
+
+	transformedPoint := aPen transformation transform: self center.
+	transformedRadius := aPen transformation vectorTransform: self radius @ self radius.
+
+	aPen stream
+		nextPutAll: 'context.beginPath();'; cr;
+		nextPutAll: 'context.arc(';
+		print: transformedPoint x;
+		nextPut: $,;
+		space;
+		print: transformedPoint y;
+		nextPut: $,;
+		space;
+		print: transformedRadius x;
+		nextPutAll: ' ,0, 2 * Math.PI);'; cr;
+		nextPutAll: (self filled ifTrue: ['context.fill();'] ifFalse: ['context.stroke();']);
+		cr
+		! !
+
+! CanvasDrawPathCommand methodsFor: 'accessing' !
+commands
+
+	^commands! !
+
+! CanvasDrawPathCommand methodsFor: 'accessing' !
+commands: anObject
+
+	commands := anObject! !
+
+! CanvasDrawPathCommand methodsFor: 'accessing' !
+filled
+
+	^filled ! !
+
+! CanvasDrawPathCommand methodsFor: 'accessing' !
+filled: anObject
+
+	filled := anObject ! !
+
+! CanvasDrawPathCommand methodsFor: 'rendering' !
+drawOn: aPen
+
+	aPen stream nextPutAll: 'context.beginPath();'; cr.
+	self commands do: [:each | each drawOn: aPen].
+	aPen stream nextPutAll: 'context.closePath();';
+		nextPutAll: (self filled ifTrue: ['context.fill();'] ifFalse: ['context.stroke();']) ;
+		cr! !
+
+! CanvasDrawTextCommand methodsFor: 'accessing' !
+filled
+
+	^filled! !
+
+! CanvasDrawTextCommand methodsFor: 'accessing' !
+filled: anObject
+
+	filled := anObject! !
+
+! CanvasDrawTextCommand methodsFor: 'accessing' !
+point
+
+	^point! !
+
+! CanvasDrawTextCommand methodsFor: 'accessing' !
+point: anObject
+
+	point := anObject! !
+
+! CanvasDrawTextCommand methodsFor: 'accessing' !
+text
+
+	^text! !
+
+! CanvasDrawTextCommand methodsFor: 'accessing' !
+text: anObject
+
+	text := anObject! !
+
+! CanvasDrawTextCommand methodsFor: 'drawing' !
+drawOn: aPen
+
+	| transformedPoint |
+
+	transformedPoint := aPen transformation transform: self point.
+
+	aPen stream
+		nextPutAll: (self filled ifTrue: ['context.fillText("'] ifFalse: ['context.strokeText("']);
+		nextPutAll: self text;
+		nextPutAll: '", ';
+		print: transformedPoint x;
+		nextPut: $,;
+		space;
+		print: transformedPoint y;
+		nextPutAll: ');'; cr;
+		cr
+		! !
+
+! CanvasDrawTextCommand methodsFor: 'initializing' !
+initialize
+
+	filled := true! !
+
+! CanvasDrawTextCommand class methodsFor: 'instance creation' !
+new
+
+	^super new initialize; yourself! !
+
+! CanvasLineCommand methodsFor: 'accessing' !
+point
+
+	^point ! !
+
+! CanvasLineCommand methodsFor: 'accessing' !
+point: anObject
+
+	point := anObject ! !
+
+! CanvasLineCommand methodsFor: 'rendering' !
+drawOn: aPen
+
+	| transformedPoint |
+
+	transformedPoint := aPen transformation transform: self point.
+
+	aPen stream
+		nextPutAll: 'context.lineTo(';
+		nextPutAll: transformedPoint x printString;
+		nextPutAll: ', ';
+		nextPutAll: transformedPoint y printString;
+		nextPutAll: ');'; cr.
+ ! !
+
+! CanvasMoveCommand methodsFor: 'accessing' !
+point
+
+	^point ! !
+
+! CanvasMoveCommand methodsFor: 'accessing' !
+point: anObject
+
+	point := anObject ! !
+
+! CanvasMoveCommand methodsFor: 'rendering' !
+drawOn: aPen
+
+	| transformedPoint |
+
+	transformedPoint := aPen transformation transform: self point.
+
+	aPen stream
+		nextPutAll: 'context.moveTo(';
+		nextPutAll: transformedPoint x printString;
+		nextPutAll: ', ';
+		nextPutAll: transformedPoint y printString;
+		nextPutAll: ');'; cr. ! !
+
+! CanvasPen methodsFor: 'accessing' !
+commands
+
+	^commands! !
+
+! CanvasPen methodsFor: 'accessing' !
+commands: anObject
+
+	commands := anObject! !
+
+! CanvasPen methodsFor: 'accessing' !
+fillStyle
+
+	^fillStyle! !
+
+! CanvasPen methodsFor: 'accessing' !
+fillStyle: aString
+
+	self commands add: (CanvasChangeFillStyleCommand new
+		fillStyleString: aString;
+		yourself)! !
+
+! CanvasPen methodsFor: 'accessing' !
+fillText: aString at: aPoint
+
+	| transformedPoint |
+
+	transformedPoint := self transformation transform: aPoint.
+
+	stream
+		nextPutAll: 'context.fillText("';
+		nextPutAll: aString;
+		nextPutAll: '", ';
+		print: transformedPoint x;
+		nextPut: $,;
+		space;
+		print: transformedPoint y;
+		nextPutAll: ');'; cr;
+		cr
+		! !
+
+! CanvasPen methodsFor: 'accessing' !
+font
+
+	^font! !
+
+! CanvasPen methodsFor: 'accessing' !
+font: aString
+
+	self commands add: (CanvasChangeFontCommand new
+		fontString: aString;
+		yourself)! !
+
+! CanvasPen methodsFor: 'accessing' !
+setFillStyle: aString
+
+	fillStyle := aString! !
+
+! CanvasPen methodsFor: 'accessing' !
+setFont: aString
+
+	font := aString! !
+
+! CanvasPen methodsFor: 'accessing' !
+setStrokeStyle: aString
+
+	strokeStyle := aString! !
+
+! CanvasPen methodsFor: 'accessing' !
+stream
+
+	^stream! !
+
+! CanvasPen methodsFor: 'accessing' !
+stream: anObject
+
+	stream := anObject! !
+
+! CanvasPen methodsFor: 'accessing' !
+strokeStyle
+
+	^strokeStyle! !
+
+! CanvasPen methodsFor: 'accessing' !
+strokeStyle: aString
+
+	self commands add: (CanvasChangeStrokeStyleCommand new
+		strokeStyleString: aString;
+		yourself)! !
+
+! CanvasPen methodsFor: 'accessing' !
+transformation
+
+	^transformation! !
+
+! CanvasPen methodsFor: 'accessing' !
+transformation: aTransformation
+
+	transformation := aTransformation! !
+
+! CanvasPen methodsFor: 'drawing' !
+drawCircleRadius: radius at: aPoint
+
+	self commands add: (CanvasDrawCircleCommand new
+		center: aPoint;
+		radius: radius;
+		yourself)! !
+
+! CanvasPen methodsFor: 'drawing' !
+drawCommands
+
+	stream := WriteStream on: (String new: 1000).
+	commands do: [:each | each drawOn: self].
+	^stream contents
+! !
+
+! CanvasPen methodsFor: 'drawing' !
+drawFilledCircleRadius: radius at: aPoint
+
+	self commands add: (CanvasDrawCircleCommand new
+		center: aPoint;
+		radius: radius;
+		filled: true;
+		yourself)! !
+
+! CanvasPen methodsFor: 'drawing' !
+drawText: aString at: aPoint
+
+	self commands add: (CanvasDrawTextCommand new
+		text: aString;
+		point: aPoint;
+		filled: true;
+		yourself)
+		! !
+
+! CanvasPen methodsFor: 'drawing' !
+fillPath: aBlock
+
+	| newPen |
+	newPen := CanvasPen new.
+	aBlock value: newPen.
+
+	self commands add: (CanvasDrawPathCommand new
+		commands: newPen commands;
+		filled: true;
+		yourself)
+! !
+
+! CanvasPen methodsFor: 'drawing' !
+lineFrom: point1 to: point2
+
+	self strokePath: [:pen |
+		pen
+			moveTo: point1;
+			lineTo: point2]! !
+
+! CanvasPen methodsFor: 'drawing' !
+lineTo: aPoint
+
+	self commands add: (CanvasLineCommand new
+		point: aPoint;
+		yourself)
+		 ! !
+
+! CanvasPen methodsFor: 'drawing' !
+moveTo: aPoint
+
+	self commands add: (CanvasMoveCommand new
+		point: aPoint;
+		yourself)
+		 ! !
+
+! CanvasPen methodsFor: 'drawing' !
+strokePath: aBlock
+
+	| newPen |
+	newPen := CanvasPen new.
+	aBlock value: newPen.
+
+	self commands add: (CanvasDrawPathCommand new
+		commands: newPen commands;
+		filled: false;
+		yourself)! !
+
+! CanvasPen methodsFor: 'drawing' !
+strokeText: aString at: aPoint
+
+	self commands add: (CanvasDrawTextCommand new
+		text: aString;
+		point: aPoint;
+		filled: false;
+		yourself)
+		! !
+
+! CanvasPen methodsFor: 'initializing' !
+clear
+
+	stream := WriteStream on: (String new: 1000).
+	commands := OrderedCollection new.
+	fillStyle := nil.
+	strokeStyle := nil.
+	font := nil
+! !
+
+! CanvasPen methodsFor: 'initializing' !
+initialize
+
+	stream := WriteStream on: (String new: 1000).
+	commands := OrderedCollection new
+! !
+
+! CanvasPen methodsFor: 'writing' !
+write: aString
+
+	stream nextPutAll: aString; cr! !
+
+! CanvasPen class methodsFor: 'instance creation' !
+new
+
+	^super new initialize; yourself! !
+
+! CanvasWindow methodsFor: 'accessing' !
+pen
+
+	^self canvasWidget canvasPen ! !
+
+! CanvasWindow methodsFor: 'accessing' !
+workspaceTextBoxName
+
+	^self idFor: 'workspaceTextBox'! !
+
+! CanvasWindow methodsFor: 'actions' !
+drawWith: aDictionary
+
+	self disableWhile: [self workspaceWidget evaluateAll].
+	self update  ! !
+
+! CanvasWindow methodsFor: 'building' !
+buildOn: aBuilder
+
+	aBuilder
+		horizontalLayout: '1fr 1fr' id: 'canvasLayout';
+			richTextWidget: #workspace;
+				menu: self codeMenu;
+				subject: self;
+			end;
+			canvasWidget: #canvas;
+			end;
+		end
+ ! !
+
+! CanvasWindow methodsFor: 'building' !
+canvasWidget
+
+	^self bindingAt: #canvas! !
+
+! CanvasWindow methodsFor: 'building' !
+workspaceWidget
+
+	^self bindingAt: #workspace! !
+
+! CanvasWindow methodsFor: 'commands' !
+clearScreen
+
+	self pen clear ! !
+
+! CanvasWindow methodsFor: 'menus' !
+codeMenu
+
+	^PopupMenuUI new
+		widgetId: (self idFor: 'workspace');
+		addMenuItem: self drawMenuItem;
+		yourself ! !
+
+! CanvasWindow methodsFor: 'menus' !
+drawMenuItem
+
+	^PopupMenuItem new
+		id: #doIt;
+		name: 'Draw';
+		addRequestedValue: 'pageX';
+		addRequestedValue: 'pageY';
+		addRequestedValue: 'richTextSelectionStart';
+		addRequestedValue: 'richTextSelectionEnd';
+		addRequestedValue: 'richTextSelectedString';
+		action: [:args | self drawWith: args];
+		yourself ! !
+
+! CanvasWindow methodsFor: 'menus' !
+openCodeMenuX: x y: y
+
+	self codeMenu openIn: (self idFor: 'workspaceTextBox') x: x y: y! !
+
+! CanvasWindow methodsFor: 'menus' !
+printItMenuItem
+
+	^PopupMenuItem new
+		id: #printIt;
+		name: 'Print It';
+		action: [:args | self printItWith: args];
+		requestedValues: #('selectedString' 'selectionStart' 'selectionEnd');
+		yourself! !
+
+! CanvasWindow methodsFor: 'opening' !
+defaultTitle
+
+	^'Canvas Window'! !
+
+! CanvasWindow methodsFor: 'opening' !
+defaultWindowExtent
+
+	^800 @ 400! !
+
+! CanvasWindow methodsFor: 'opening' !
+postOpen
+
+	super postOpen.
+	self setAbsoluteWindowBounds.
+	self withinWebUpdateDo: [
+		self draw]! !
+
+! CanvasWindow methodsFor: 'updating' !
+draw
+
+	self canvasWidget  draw
+! !
+
+! CanvasWindow methodsFor: 'updating' !
+resizeFrame
+
+	super resizeFrame.
+	self draw
+! !
+
+! CanvasWindow methodsFor: 'updating' !
+update
+
+	self withinWebUpdateDo: [self draw]
+! !
+
+! TwoDTransformation methodsFor: 'accessing' !
+inverseMatrix
+
+	^inverseMatrix! !
+
+! TwoDTransformation methodsFor: 'accessing' !
+inverseVectorMatrix
+
+	^inverseVectorMatrix! !
+
+! TwoDTransformation methodsFor: 'accessing' !
+matrix
+
+	^matrix! !
+
+! TwoDTransformation methodsFor: 'accessing' !
+rotation
+
+	^rotation! !
+
+! TwoDTransformation methodsFor: 'accessing' !
+rotation: aNumber
+
+	rotation := aNumber.
+	self computeMatrix! !
+
+! TwoDTransformation methodsFor: 'accessing' !
+scale
+
+	^scale! !
+
+! TwoDTransformation methodsFor: 'accessing' !
+scale: aNumberOrPoint
+
+	scale := aNumberOrPoint.
+	self computeMatrix! !
+
+! TwoDTransformation methodsFor: 'accessing' !
+translation
+
+	^translation! !
+
+! TwoDTransformation methodsFor: 'accessing' !
+translation: aPoint
+
+	translation := aPoint.
+	self computeMatrix! !
+
+! TwoDTransformation methodsFor: 'accessing' !
+vectorMatrix
+
+	^vectorMatrix! !
+
+! TwoDTransformation methodsFor: 'computing' !
+computeMatrix
+
+	self scale isNil ifTrue: [^self].
+	self rotation isNil ifTrue: [^self].
+	self translation isNil ifTrue: [^self].
+
+	matrix := self translationMatrix * self rotationMatrix * self scaleMatrix.
+	inverseMatrix := self inverseScaleMatrix * self inverseRotationMatrix * self inverseTranslationMatrix.
+
+	vectorMatrix := self rotationMatrix * self scaleMatrix.
+	inverseVectorMatrix := self inverseScaleMatrix * self inverseRotationMatrix.
+
+! !
+
+! TwoDTransformation methodsFor: 'computing' !
+inverseRotationMatrix 
+
+	^Matrix fromArray:
+			(Array
+				with: (Array with: self rotation cos with: self rotation sin with: 0.0)
+				with: (Array with: self rotation sin negated with: self rotation cos with: 0.0)
+				with: (Array with: 0.0 with: 0.0 with: 1.0))! !
+
+! TwoDTransformation methodsFor: 'computing' !
+inverseScaleMatrix
+
+	self scale isNumber ifTrue: [^self inverseScaleMatrixFromScalar].
+	self scale class = Point ifTrue: [^self inverseScaleMatrixFromPoint].
+	self scale class = Array ifTrue: [^self inverseScaleMatrixFromArray].
+
+	self error: 'Scale is the wrong type'
+
+! !
+
+! TwoDTransformation methodsFor: 'computing' !
+inverseScaleMatrixFromArray
+
+	^Matrix fromArray:
+			(Array
+				with: (Array with: 1.0 / (self scale at: 1) with: 0.0 with: 0.0)
+				with: (Array with: 0.0 with: 1.0 / (self scale at: 2) with: 0.0)
+				with: (Array with: 0.0 with: 0.0 with: 1.0))! !
+
+! TwoDTransformation methodsFor: 'computing' !
+inverseScaleMatrixFromPoint
+
+	^Matrix fromArray:
+			(Array
+				with: (Array with: 1.0 / self scale x with: 0.0 with: 0.0)
+				with: (Array with: 0.0 with: 1.0 / self scale y with: 0.0)
+				with: (Array with: 0.0 with: 0.0 with: 1.0))! !
+
+! TwoDTransformation methodsFor: 'computing' !
+inverseScaleMatrixFromScalar
+
+	^Matrix fromArray:
+			(Array
+				with: (Array with: 1.0 / self scale with: 0.0 with: 0.0)
+				with: (Array with: 0.0 with: 1.0 / self scale with: 0.0)
+				with: (Array with: 0.0 with: 0.0 with: 1.0))! !
+
+! TwoDTransformation methodsFor: 'computing' !
+inverseTranslationMatrix
+
+	self translation isNumber ifTrue: [^self inverseTranslationMatrixFromScalar].
+	self translation class = Point ifTrue: [^self inverseTranslationMatrixFromPoint].
+	self translation class = Array ifTrue: [^self inverseTranslationMatrixFromArray].
+
+	self error: 'Translation is the wrong type'
+
+! !
+
+! TwoDTransformation methodsFor: 'computing' !
+inverseTranslationMatrixFromArray
+
+	^Matrix fromArray:
+			(Array
+				with: (Array with: 1.0 with: 0.0 with: (self translation at: 1) negated)
+				with: (Array with: 0.0 with: 1.0 with: (self translation at: 2) negated)
+				with: (Array with: 0.0 with: 0.0 with: 1.0))! !
+
+! TwoDTransformation methodsFor: 'computing' !
+inverseTranslationMatrixFromPoint
+
+	^Matrix fromArray:
+			(Array
+				with: (Array with: 1.0 with: 0.0 with: self translation x negated)
+				with: (Array with: 0.0 with: 1.0 with: self translation y negated)
+				with: (Array with: 0.0 with: 0.0 with: 1.0))! !
+
+! TwoDTransformation methodsFor: 'computing' !
+inverseTranslationMatrixFromScalar
+
+	^Matrix fromArray:
+			(Array
+				with: (Array with: 1.0 with: 0.0 with: self translation negated)
+				with: (Array with: 0.0 with: 1.0 with: self translation negated)
+				with: (Array with: 0.0 with: 0.0 with: 1.0))! !
+
+! TwoDTransformation methodsFor: 'computing' !
+rotationMatrix 
+
+	^Matrix fromArray:
+			(Array
+				with: (Array with: self rotation cos with: self rotation sin negated with: 0.0)
+				with: (Array with: self rotation sin with: self rotation cos with: 0.0)
+				with: (Array with: 0.0 with: 0.0 with: 1.0))! !
+
+! TwoDTransformation methodsFor: 'computing' !
+scaleMatrix
+
+	self scale isNumber ifTrue: [^self scaleMatrixFromScalar].
+	self scale class = Point ifTrue: [^self scaleMatrixFromPoint].
+	self scale class = Array ifTrue: [^self scaleMatrixFromArray].
+
+	self error: 'Scale is the wrong type'
+
+! !
+
+! TwoDTransformation methodsFor: 'computing' !
+scaleMatrixFromArray
+
+	^Matrix fromArray:
+			(Array
+				with: (Array with: (self scale at: 1) with: 0.0 with: 0.0)
+				with: (Array with: 0.0 with: (self scale at: 2) with: 0.0)
+				with: (Array with: 0.0 with: 0.0 with: 1.0))! !
+
+! TwoDTransformation methodsFor: 'computing' !
+scaleMatrixFromPoint
+
+	^Matrix fromArray:
+			(Array
+				with: (Array with: self scale x with: 0.0 with: 0.0)
+				with: (Array with: 0.0 with: self scale y with: 0.0)
+				with: (Array with: 0.0 with: 0.0 with: 1.0))! !
+
+! TwoDTransformation methodsFor: 'computing' !
+scaleMatrixFromScalar
+
+	^Matrix fromArray:
+			(Array
+				with: (Array with: self scale with: 0.0 with: 0.0)
+				with: (Array with: 0.0 with: self scale with: 0.0)
+				with: (Array with: 0.0 with: 0.0 with: 1.0))! !
+
+! TwoDTransformation methodsFor: 'computing' !
+translationMatrix
+
+	self translation isNumber ifTrue: [^self translationMatrixFromScalar].
+	self translation class = Point ifTrue: [^self translationMatrixFromPoint].
+	self translation class = Array ifTrue: [^self translationMatrixFromArray].
+
+	self error: 'Translation is the wrong type'
+
+! !
+
+! TwoDTransformation methodsFor: 'computing' !
+translationMatrixFromArray
+
+	^Matrix fromArray:
+			(Array
+				with: (Array with: 1.0 with: 0.0 with: (self translation at: 1))
+				with: (Array with: 0.0 with: 1.0 with: (self translation at: 2))
+				with: (Array with: 0.0 with: 0.0 with: 1.0))! !
+
+! TwoDTransformation methodsFor: 'computing' !
+translationMatrixFromPoint
+
+	^Matrix fromArray:
+			(Array
+				with: (Array with: 1.0 with: 0.0 with: self translation x)
+				with: (Array with: 0.0 with: 1.0 with: self translation y)
+				with: (Array with: 0.0 with: 0.0 with: 1.0))! !
+
+! TwoDTransformation methodsFor: 'computing' !
+translationMatrixFromScalar
+
+	^Matrix fromArray:
+			(Array
+				with: (Array with: 1.0 with: 0.0 with: self translation)
+				with: (Array with: 0.0 with: 1.0 with: self translation)
+				with: (Array with: 0.0 with: 0.0 with: 1.0))! !
+
+! TwoDTransformation methodsFor: 'initializing' !
+initialize
+
+	self
+		scale: 1.0 @ 1.0;
+		rotation: 0.0;
+		translation: 0.0 @ 0.0
+! !
+
+! TwoDTransformation methodsFor: 'transforming' !
+inverseTransform: aPoint
+
+	^(self inverseMatrix * (Matrix twoDFromPoint: aPoint)) as2DPoint! !
+
+! TwoDTransformation methodsFor: 'transforming' !
+inverseVectorTransform: aPoint
+
+	^(self inverseVectorMatrix * (Matrix twoDFromPoint: aPoint)) as2DPoint! !
+
+! TwoDTransformation methodsFor: 'transforming' !
+transform: aPoint
+
+	^(self matrix * (Matrix twoDFromPoint: aPoint)) as2DPoint! !
+
+! TwoDTransformation methodsFor: 'transforming' !
+vectorTransform: aPoint
+
+	^(self vectorMatrix * (Matrix twoDFromPoint: aPoint)) as2DPoint! !
+
+! TwoDTransformation class methodsFor: 'instance creation' !
+new
+
+	^super new initialize; yourself! !
+
+! WindowBuilder methodsFor: 'building' !
+canvasWidget: aString
+
+	| widget |
+	widget := CanvasComponent new
+		bindTo: self window as: aString asSymbol;
+		yourself.
+
+	self bindings at: aString asSymbol put: widget.
+	self addFrame: (Frame new widget: widget; yourself)
+
+! !
+
+KitManager default currentKit addMethod: (WindowBuilder compiledMethodAt: #canvasWidget:) !
+
+KitManager default currentKit allDefinedClasses: #(CanvasChangeFillStyleCommand CanvasChangeFontCommand CanvasChangeStrokeStyleCommand CanvasCommand CanvasComponent CanvasDrawCircleCommand CanvasDrawPathCommand CanvasDrawTextCommand CanvasLineCommand CanvasMoveCommand CanvasPen CanvasWindow TwoDTransformation) andMethods: #(#(WindowBuilder #'canvasWidget:')) !
+
+KitManager default currentKit allDefinedMethodsFor: CanvasWindow methods: #(#'buildOn:' #canvasWidget #clearScreen #codeMenu #defaultTitle #defaultWindowExtent #draw #drawMenuItem #'drawWith:' #'openCodeMenuX:y:' #pen #postOpen #printItMenuItem #resizeFrame #update #workspaceTextBoxName #workspaceWidget) !
+
+KitManager default currentKit allDefinedMethodsFor: CanvasWindow class methods: #() !
+
+KitManager default currentKit allDefinedMethodsFor: CanvasComponent methods: #(#backgroundColorString #'backgroundColorString:' #canvasPen #'canvasPen:' #canvasStyleString #clearScreen #draw #drawCommands #initialize #'renderOn:' #resize #setStyle #styleString #transformation #'transformation:') !
+
+KitManager default currentKit allDefinedMethodsFor: CanvasComponent class methods: #() !
+
+KitManager default currentKit allDefinedMethodsFor: TwoDTransformation methods: #(#computeMatrix #initialize #inverseMatrix #inverseRotationMatrix #inverseScaleMatrix #inverseScaleMatrixFromArray #inverseScaleMatrixFromPoint #inverseScaleMatrixFromScalar #'inverseTransform:' #inverseTranslationMatrix #inverseTranslationMatrixFromArray #inverseTranslationMatrixFromPoint #inverseTranslationMatrixFromScalar #inverseVectorMatrix #'inverseVectorTransform:' #matrix #rotation #'rotation:' #rotationMatrix #scale #'scale:' #scaleMatrix #scaleMatrixFromArray #scaleMatrixFromPoint #scaleMatrixFromScalar #'transform:' #translation #'translation:' #translationMatrix #translationMatrixFromArray #translationMatrixFromPoint #translationMatrixFromScalar #vectorMatrix #'vectorTransform:') !
+
+KitManager default currentKit allDefinedMethodsFor: TwoDTransformation class methods: #(#new) !
+
+KitManager default currentKit allDefinedMethodsFor: CanvasCommand methods: #() !
+
+KitManager default currentKit allDefinedMethodsFor: CanvasCommand class methods: #() !
+
+KitManager default currentKit allDefinedMethodsFor: CanvasDrawCircleCommand methods: #(#center #'center:' #'drawOn:' #filled #'filled:' #initialize #radius #'radius:') !
+
+KitManager default currentKit allDefinedMethodsFor: CanvasDrawCircleCommand class methods: #() !
+
+KitManager default currentKit allDefinedMethodsFor: CanvasDrawTextCommand methods: #(#'drawOn:' #filled #'filled:' #initialize #point #'point:' #text #'text:') !
+
+KitManager default currentKit allDefinedMethodsFor: CanvasDrawTextCommand class methods: #(#new) !
+
+KitManager default currentKit allDefinedMethodsFor: CanvasChangeFontCommand methods: #(#'drawOn:' #fontString #'fontString:') !
+
+KitManager default currentKit allDefinedMethodsFor: CanvasChangeFontCommand class methods: #() !
+
+KitManager default currentKit allDefinedMethodsFor: CanvasMoveCommand methods: #(#'drawOn:' #point #'point:') !
+
+KitManager default currentKit allDefinedMethodsFor: CanvasMoveCommand class methods: #() !
+
+KitManager default currentKit allDefinedMethodsFor: CanvasLineCommand methods: #(#'drawOn:' #point #'point:') !
+
+KitManager default currentKit allDefinedMethodsFor: CanvasLineCommand class methods: #() !
+
+KitManager default currentKit allDefinedMethodsFor: CanvasDrawPathCommand methods: #(#commands #'commands:' #'drawOn:' #filled #'filled:') !
+
+KitManager default currentKit allDefinedMethodsFor: CanvasDrawPathCommand class methods: #() !
+
+KitManager default currentKit allDefinedMethodsFor: CanvasChangeFillStyleCommand methods: #(#'drawOn:' #fillStyleString #'fillStyleString:') !
+
+KitManager default currentKit allDefinedMethodsFor: CanvasChangeFillStyleCommand class methods: #() !
+
+KitManager default currentKit allDefinedMethodsFor: CanvasChangeStrokeStyleCommand methods: #(#'drawOn:' #strokeStyleString #'strokeStyleString:') !
+
+KitManager default currentKit allDefinedMethodsFor: CanvasChangeStrokeStyleCommand class methods: #() !
+
+KitManager default currentKit allDefinedMethodsFor: CanvasPen methods: #(#clear #commands #'commands:' #'drawCircleRadius:at:' #drawCommands #'drawFilledCircleRadius:at:' #'drawText:at:' #'fillPath:' #fillStyle #'fillStyle:' #'fillText:at:' #font #'font:' #initialize #'lineFrom:to:' #'lineTo:' #'moveTo:' #'setFillStyle:' #'setFont:' #'setStrokeStyle:' #stream #'stream:' #'strokePath:' #strokeStyle #'strokeStyle:' #'strokeText:at:' #transformation #'transformation:' #'write:') !
+
+KitManager default currentKit allDefinedMethodsFor: CanvasPen class methods: #(#new) !
+
+KitManager default finishFileinKit !

@@ -167,31 +167,15 @@ void dumpWalkback(char *message)
 	walkbackDump[0]='\0';
 	int walkbackIndex = 0;
 
-	int lines = 0;
-
 	LOGW ("About to dump walkback");
 	LOGW ("Message: %s", message);
 
-	walkbackIndex += snprintf (&walkbackDump[walkbackIndex], DUMP_SIZE - walkbackIndex,"	 \r==========\r" );
-	lines += 2;
-
-	walkbackIndex += snprintf(&walkbackDump[walkbackIndex], DUMP_SIZE - walkbackIndex,"%s\r", VERSION_NAME);
-	lines++;
-
 	if (message != NULL) {
 		walkbackIndex += snprintf(&walkbackDump[walkbackIndex], DUMP_SIZE - walkbackIndex, "%s\r", message);
-		lines++;
 	}
 
 	if (currentContext == ST_NIL) {
 		walkbackIndex += snprintf(&walkbackDump[walkbackIndex], DUMP_SIZE - walkbackIndex, "No current context\r");
-		lines++;
-
-		char linesString[12];
-		sprintf (linesString, "%d", lines);
-		char *src, *dest = walkbackDump;
-		for (src = linesString; *src != '\0'; src++)
-			*dest++ = *src;
 		return;
 	}
 
@@ -219,7 +203,6 @@ void dumpWalkback(char *message)
 			int offset = stIntToC(asContext(frame)->pcOffset);
 			WALKBACK("\t%s (%x)", "Block", offset);
 			walkbackIndex += snprintf(&walkbackDump[walkbackIndex], DUMP_SIZE - walkbackIndex, "\t%s (%x)\r", "Block", offset);
-			lines++;
 		}
 		else {
 			oop mclassOop = asCompiledMethod(methodOop)->mclass;
@@ -250,15 +233,8 @@ void dumpWalkback(char *message)
 												  "\t%s(%s) >> %s (%x)\r", receiverClassName,
 												  className, selectorString, offset);
 			}
-			lines++;
 		}
 	}
-
-	char linesString[12];
-	sprintf (linesString, "%d", lines);
-	char *src, *dest = walkbackDump;
-	for (src = linesString; *src != '\0'; src++)
-		*dest++ = *src;
 }
 
 void captureFastContext(oop context)

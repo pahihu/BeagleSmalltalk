@@ -9,14 +9,15 @@
 	</head>
 	<body onload="connectToVM()">
 		<div style="color:white;font-size:200%;">Beagle Smalltalk</div>
+		<div style="color:white" id="BeagleSmalltalkVersion">Release: unknown</div>
 		<div style="color:white">Copyright © 2025 Simberon Incorporated</div>
 		<div style="color:white">Released under the <a href="https://opensource.org/license/MIT" target="_blank" rel="noopener noreferrer" style="color:#C0C0FF">MIT License</a></div>
 		<div class="buttonBar">
 			<div class="button" onclick="openWorkspace()">
 				Workspace
 			</div>
-			<div class="button" onclick="openSystemBrowser()">
-				System Browser
+			<div class="button" onclick="openCodeBrowser()">
+				Code Browser
 			</div>
 			<div class="button" onclick="browseSenders()">
 				Senders...
@@ -63,6 +64,11 @@
 			</div>
 			<div class="button" onclick="fileIn()">
 				File In
+			</div>
+		</div>
+		<div class="buttonBar">
+			<div class="button" onclick="stringArtWindow()">
+				String Art Window
 			</div>
 		</div>
 		<div class="workspace">

@@ -2,10 +2,10 @@
 #    Copyright 2025 Simberon Incorporated
 
 ifeq ($(OS),Windows_NT)
-	CC = gcc -c -m64 -g -DWINDOWS -O3
+	CC = gcc -c -m64 -g -DWINDOWS -D_GNU_SOURCE -O3
 	EXE=beagle.exe
 else
-	CC = gcc -c -m64 -g
+	CC = gcc -c -m64 -g -D_GNU_SOURCE
 	EXE=beagle
 endif
 LN = gcc -m64 -g -O3

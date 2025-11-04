@@ -44,6 +44,12 @@ EventBase subclassNamed: #EventModel
 	environment: Object systemDictionary
 	kitName: 'CoreUI' !
 
+Object subclassNamed: #Frame
+	instVarNames: 'parent id children widget verticalChildLayout horizontalChildLayout bounds'
+	classInstVarNames: ''
+	environment: Object systemDictionary
+	kitName: 'CoreUI' !
+
 Object subclassNamed: #HTMLBuilder
 	instVarNames: 'nodeStack currentNode htmlNode'
 	classInstVarNames: ''
@@ -80,6 +86,12 @@ Event subclassNamed: #KeyEvent
 	environment: Object systemDictionary
 	kitName: 'CoreUI' !
 
+Object subclassNamed: #Layout
+	instVarNames: 'layoutString totalFractionalParts totalFixedSize layoutParts spacing'
+	classInstVarNames: ''
+	environment: Object systemDictionary
+	kitName: 'CoreUI' !
+
 Event subclassNamed: #ListSelectionEvent
 	instVarNames: 'selectionIndex'
 	classInstVarNames: ''
@@ -111,7 +123,7 @@ Object subclassNamed: #SessionVariable
 	kitName: 'CoreUI' !
 
 EventBase subclassNamed: #UIComponent
-	instVarNames: 'menu id ui displayBlock height'
+	instVarNames: 'menu id ui displayBlock height frame bounds'
 	classInstVarNames: ''
 	environment: Object systemDictionary
 	kitName: 'CoreUI' !
@@ -122,20 +134,26 @@ UIComponent subclassNamed: #CompositeComponent
 	environment: Object systemDictionary
 	kitName: 'CoreUI' !
 
-UIComponent subclassNamed: #ListComponent
-	instVarNames: 'list selectionIndex listNumberOfRows optionStyles'
+UIComponent subclassNamed: #InputFieldComponent
+	instVarNames: 'value defaultValue'
 	classInstVarNames: ''
 	environment: Object systemDictionary
 	kitName: 'CoreUI' !
 
 UIComponent subclassNamed: #ListDivComponent
-	instVarNames: 'list selectionIndex listNumberOfRows optionStyles'
+	instVarNames: 'list selectionIndex listNumberOfRows optionStyles scrollTop scrollHeight onSelection listRendered'
 	classInstVarNames: ''
 	environment: Object systemDictionary
 	kitName: 'CoreUI' !
 
 UIComponent subclassNamed: #PushButtonComponent
-	instVarNames: 'label actionBlock'
+	instVarNames: 'label actionBlock textSize'
+	classInstVarNames: ''
+	environment: Object systemDictionary
+	kitName: 'CoreUI' !
+
+UIComponent subclassNamed: #RadioButtonComponent
+	instVarNames: 'label radioGroupName onClicked'
 	classInstVarNames: ''
 	environment: Object systemDictionary
 	kitName: 'CoreUI' !
@@ -152,12 +170,6 @@ UIComponent subclassNamed: #TextComponent
 	environment: Object systemDictionary
 	kitName: 'CoreUI' !
 
-UIComponent subclassNamed: #TextEditorComponent
-	instVarNames: 'text selectionStart selectionEnd emphasisCollection subject'
-	classInstVarNames: ''
-	environment: Object systemDictionary
-	kitName: 'CoreUI' !
-
 Object subclassNamed: #UIOperation
 	instVarNames: 'name arguments'
 	classInstVarNames: ''
@@ -165,7 +177,7 @@ Object subclassNamed: #UIOperation
 	kitName: 'CoreUI' !
 
 Object subclassNamed: #UIScreen
-	instVarNames: 'components addedComponents deletedComponents modifiedComponents commandHandler webSocket componentNumber'
+	instVarNames: 'components addedComponents deletedComponents modifiedComponents commandHandler webSocket componentNumber webSession'
 	classInstVarNames: ''
 	environment: Object systemDictionary
 	kitName: 'CoreUI' !
@@ -183,25 +195,25 @@ Object subclassNamed: #WebSession
 	kitName: 'CoreUI' !
 
 Object subclassNamed: #WebUI
-	instVarNames: 'appName parentName bindings updateStream flags bounds title origin extent dragPoint opened htmlTree'
+	instVarNames: 'appName parentName bindings updateStream flags title origin extent dragPoint opened htmlTree frame'
 	classInstVarNames: ''
 	environment: Object systemDictionary
 	kitName: 'CoreUI' !
 
 WebUI subclassNamed: #ListChoiceBox
-	instVarNames: 'message choices values answerBlock'
+	instVarNames: 'message choices values answerBlock messageSize'
 	classInstVarNames: ''
 	environment: Object systemDictionary
 	kitName: 'CoreUI' !
 
 WebUI subclassNamed: #MessageBox
-	instVarNames: 'message severity'
+	instVarNames: 'message severity messageSize'
 	classInstVarNames: ''
 	environment: Object systemDictionary
 	kitName: 'CoreUI' !
 
 WebUI subclassNamed: #MultipleChoiceBox
-	instVarNames: 'message choices values'
+	instVarNames: 'message choices values messageSize'
 	classInstVarNames: ''
 	environment: Object systemDictionary
 	kitName: 'CoreUI' !
@@ -214,6 +226,12 @@ WebUI subclassNamed: #PopupMenuUI
 
 WebUI subclassNamed: #RequestBox
 	instVarNames: 'message initialAnswer answerBlock'
+	classInstVarNames: ''
+	environment: Object systemDictionary
+	kitName: 'CoreUI' !
+
+Object subclassNamed: #WindowBuilder
+	instVarNames: 'currentFrame bindings rootFrame window'
 	classInstVarNames: ''
 	environment: Object systemDictionary
 	kitName: 'CoreUI' !
@@ -625,6 +643,230 @@ signalEvent: aSymbol
 	(eventRegistry at: aSymbol ifAbsent: [
 		^self]) do: [:each | each value]! !
 
+! Frame methodsFor: 'accessing' !
+bounds
+
+	^bounds! !
+
+! Frame methodsFor: 'accessing' !
+bounds: anObject
+
+	bounds := anObject! !
+
+! Frame methodsFor: 'accessing' !
+childNamed: aString
+
+	self id = aString ifTrue: [^self].
+
+	self children do: [:child |
+		(child childNamed: aString) ifNotNil: [^child]].
+
+	^nil! !
+
+! Frame methodsFor: 'accessing' !
+children
+
+	^children! !
+
+! Frame methodsFor: 'accessing' !
+children: anObject
+
+	children := anObject! !
+
+! Frame methodsFor: 'accessing' !
+horizontalChildLayout
+
+	^horizontalChildLayout! !
+
+! Frame methodsFor: 'accessing' !
+horizontalChildLayout: aString
+
+	horizontalChildLayout := Layout layoutString: aString! !
+
+! Frame methodsFor: 'accessing' !
+id
+
+	^id! !
+
+! Frame methodsFor: 'accessing' !
+id: anObject
+
+	id := anObject! !
+
+! Frame methodsFor: 'accessing' !
+idOrWidgetId
+
+	self id notNil ifTrue: [^self id].
+	self widget notNil ifTrue: [^self widget id, 'Div'].
+	^''! !
+
+! Frame methodsFor: 'accessing' !
+parent
+
+	^parent! !
+
+! Frame methodsFor: 'accessing' !
+parent: anObject
+
+	parent := anObject! !
+
+! Frame methodsFor: 'accessing' !
+verticalChildLayout
+
+	^verticalChildLayout! !
+
+! Frame methodsFor: 'accessing' !
+verticalChildLayout: aString
+
+	verticalChildLayout := Layout layoutString: aString! !
+
+! Frame methodsFor: 'accessing' !
+widget
+
+	^widget! !
+
+! Frame methodsFor: 'accessing' !
+widget: anObject
+
+	widget := anObject.
+	anObject frame: self! !
+
+! Frame methodsFor: 'adding and removing' !
+addChild: aFrame
+
+	self children add: aFrame.
+	^aFrame! !
+
+! Frame methodsFor: 'initializing' !
+initialize
+
+	self
+		children: OrderedCollection new! !
+
+! Frame methodsFor: 'printing' !
+printOn: aStream
+
+	super printOn: aStream.
+	self verticalChildLayout isNil & self horizontalChildLayout isNil & self widget isNil ifTrue: [^self].
+
+	aStream nextPutAll: ' ('.
+	self verticalChildLayout  notNil ifTrue: [
+		aStream
+			nextPutAll: 'vertical: ''';
+			nextPutAll: self verticalChildLayout printString;
+			space].
+
+	self horizontalChildLayout notNil ifTrue: [
+		aStream
+			nextPutAll: 'horizontal: ''';
+			nextPutAll: self horizontalChildLayout printString;
+			space].
+
+	self widget notNil ifTrue: [
+		aStream
+			nextPutAll: 'widget: ';
+			nextPutAll: self widget printString;
+			space].
+
+	aStream nextPut: $)
+		! !
+
+! Frame methodsFor: 'rendering' !
+layoutChildrenHorizontallyOn: aWebUI within: aRectangle
+
+	self children with: (self horizontalChildLayout componentsWithin: aRectangle width) do: [:child :component |
+		| box |
+		box := component first @ 0 extent: (component last - component first) @ aRectangle height.
+		child resize: aWebUI within: box].
+ 
+"	self children with: (self horizontalChildLayout componentsWithin: aRectangle width) do: [:child :component |
+		| box |
+		box := component first @ aRectangle top corner: component last @ aRectangle bottom.
+		child resize: aWebUI within: box].
+ "! !
+
+! Frame methodsFor: 'rendering' !
+layoutChildrenVerticallyOn: aWebUI within: aRectangle
+
+	self children with: (self verticalChildLayout componentsWithin: aRectangle height) do: [:child :component |
+		| box |
+		box := 0 @ component first extent: aRectangle width @ (component last - component first).
+		child resize: aWebUI within: box].
+ 
+"	self children with: (self verticalChildLayout componentsWithin: aRectangle height) do: [:child :component |
+		| box |
+		box := aRectangle left @ component first corner: aRectangle right @ component last.
+		child resize: aWebUI within: box].
+ "! !
+
+! Frame methodsFor: 'rendering' !
+layoutStringFor: aWebUI within: aRectangle
+
+	^(WriteStream on: (String new: 1000))
+		nextPutAll: 'position: absolute; left: ';
+		print: aRectangle left;
+		nextPutAll: 'px; width:';
+		print: aRectangle width;
+		nextPutAll: 'px; height: ';
+		print: aRectangle height;
+		nextPutAll: 'px; top: ';
+		print: aRectangle top;
+		nextPutAll: 'px;';
+		contents
+! !
+
+! Frame methodsFor: 'rendering' !
+renderOn: aBuilder
+
+	self widget notNil ifTrue: [^self widget renderOn: aBuilder].
+
+	aBuilder
+		div;
+			id: self id.
+
+	self children do: [:child | child renderOn: aBuilder].
+
+	aBuilder endDiv
+! !
+
+! Frame methodsFor: 'rendering' !
+resize: aWebUI within: aRectangle
+
+	self bounds: aRectangle.
+	self
+		resizeDivOn: aWebUI within: aRectangle;
+		resizeWidgetOn: aWebUI within: aRectangle;
+		resizeChildrenOn: aWebUI within: aRectangle! !
+
+! Frame methodsFor: 'rendering' !
+resizeChildrenOn: aWebUI within: aRectangle
+
+	self horizontalChildLayout notNil ifTrue: [^self layoutChildrenHorizontallyOn: aWebUI within: aRectangle].
+	self verticalChildLayout notNil ifTrue: [^self layoutChildrenVerticallyOn: aWebUI within: aRectangle]
+! !
+
+! Frame methodsFor: 'rendering' !
+resizeDivOn: aWebUI within: aRectangle
+
+	aWebUI setAttribute: 'style' of: self idOrWidgetId to: (self layoutStringFor: aWebUI within: aRectangle)
+	
+  ! !
+
+! Frame methodsFor: 'rendering' !
+resizeWidgetOn: aWebUI within: aRectangle
+
+	self widget isNil ifTrue: [^self].
+
+	widget
+		bounds: (aRectangle origin extent: (aRectangle width @ aRectangle height));
+		resize
+  ! !
+
+! Frame class methodsFor: 'instance creation' !
+new
+
+	^super new initialize; yourself! !
+
 ! HTMLBuilder methodsFor: 'accessing' !
 currentNode
 
@@ -659,6 +901,13 @@ nodeStack: anOrderedCollection
 attributeAt: keyString put: valueString
 
 	self currentNode attributeAt: keyString put: valueString! !
+
+! HTMLBuilder methodsFor: 'building' !
+bounds: aRectangle
+
+	aRectangle isNil ifTrue: [^self].
+
+! !
 
 ! HTMLBuilder methodsFor: 'building' !
 class: aString
@@ -745,6 +994,11 @@ inTag: aString do: aBlock
 	self startTag: aString.
 	aBlock cull: self.
 	self endTag: aString! !
+
+! HTMLBuilder methodsFor: 'building' !
+input
+
+	self startTag: 'input'! !
 
 ! HTMLBuilder methodsFor: 'building' !
 install: anObject
@@ -1169,6 +1423,89 @@ key: aCharacter
 modifiers: aSet
 	modifiers := aSet! !
 
+! Layout methodsFor: 'accessing' !
+computeLayout
+
+	layoutParts := OrderedCollection new.
+	totalFractionalParts := 0.
+	totalFixedSize := 0.
+	self spacing: 0.
+
+	((layoutString splitBy: Character space) reject: [:each | each isEmpty]) do: [:token |
+		('*sp' matches: token) ifTrue: [
+			| number |
+			number := Integer readFrom: token readStream.
+			self spacing: number].
+		('*fr' matches: token) ifTrue: [
+			| number |
+			number := Integer readFrom: token readStream.
+			layoutParts add: (Array with: #fractional with: number).
+			totalFractionalParts := totalFractionalParts + number.
+			totalFixedSize := totalFixedSize + self spacing].
+		('*px' matches: token) ifTrue: [
+			| number |
+			number := Integer readFrom: token readStream.
+			layoutParts add: (Array with: #fixed with: number).
+			totalFixedSize := totalFixedSize + number.
+			totalFixedSize := totalFixedSize + self spacing].
+		].
+
+	totalFixedSize := totalFixedSize - self spacing max: 0.! !
+
+! Layout methodsFor: 'accessing' !
+layoutString: aString
+
+	layoutString := aString.
+	self computeLayout! !
+
+! Layout methodsFor: 'accessing' !
+spacing
+
+	^spacing! !
+
+! Layout methodsFor: 'accessing' !
+spacing: aNumber
+
+	spacing := aNumber! !
+
+! Layout methodsFor: 'computing' !
+componentsWithin: aNumber
+
+	| fractionalSize components total pixels |
+
+	fractionalSize := totalFractionalParts = 0
+		ifTrue: [0]
+		ifFalse: [aNumber - totalFixedSize // totalFractionalParts].
+
+	total := 0.
+
+	components := OrderedCollection new.
+
+	layoutParts do: [:layoutPart |
+
+		layoutPart first = #fractional ifTrue: [
+			layoutPart == layoutParts last
+				ifTrue: [pixels := aNumber - total]
+				ifFalse: [pixels := fractionalSize * layoutPart last]].
+
+		layoutPart first = #fixed ifTrue: [
+			layoutPart == layoutParts last
+				ifTrue: [pixels := aNumber - total]
+				ifFalse: [pixels := layoutPart last]].
+
+		components add: (Array with: total with: total + pixels - 1).
+		total := total + pixels + self spacing].
+
+	^components
+	! !
+
+! Layout class methodsFor: 'instance creation' !
+layoutString: aString
+
+	^self new
+		layoutString: aString;
+		yourself! !
+
 ! ListSelectionEvent methodsFor: 'accessing' !
 selectionIndex
 
@@ -1289,8 +1626,10 @@ renderHTMLOn: anHTMLBuilder
 			attributeAt: 'class' put: 'menuItem'.
 
 		self enabledBlock value
-			ifTrue: [anHTMLBuilder attributeAt: 'onclick' put: self menuCallbackString]
-			ifFalse: [anHTMLBuilder attributeAt: 'style' put: 'color: #A0A0A0;'].
+			ifTrue: [anHTMLBuilder
+				attributeAt: 'onclick' put: self menuCallbackString;
+				attributeAt: 'style' put: 'cursor: default;']
+			ifFalse: [anHTMLBuilder attributeAt: 'style' put: 'color: #A0A0A0;cursor: default;'].
 
 		anHTMLBuilder attributeAt: 'onmouseover' put: 'captureRichTextSelection(''', self widgetId,''');'.
 		anHTMLBuilder text: self name]! !
@@ -1457,6 +1796,21 @@ incrementBy: aNumber
 	^value := value + aNumber! !
 
 ! UIComponent methodsFor: 'accessing' !
+bounds
+
+	^bounds! !
+
+! UIComponent methodsFor: 'accessing' !
+bounds: anObject
+
+	bounds := anObject! !
+
+! UIComponent methodsFor: 'accessing' !
+defaultFont
+
+	^'16px "Times New Roman"' ! !
+
+! UIComponent methodsFor: 'accessing' !
 displayBlock
 
 	^displayBlock! !
@@ -1465,6 +1819,21 @@ displayBlock
 displayBlock: aBlock
 
 	displayBlock := aBlock! !
+
+! UIComponent methodsFor: 'accessing' !
+font
+
+	^self defaultFont ! !
+
+! UIComponent methodsFor: 'accessing' !
+frame
+
+	^frame! !
+
+! UIComponent methodsFor: 'accessing' !
+frame: anObject
+
+	frame := anObject! !
 
 ! UIComponent methodsFor: 'accessing' !
 height
@@ -1544,6 +1913,16 @@ openMenuX: x y: y
 	self menu openIn: (self idFor: self id, 'Div') x: x y: y
 ! !
 
+! UIComponent methodsFor: 'printing' !
+printOn: aStream
+
+	super printOn: aStream.
+	aStream
+		nextPutAll: ' (';
+		nextPutAll: (self id ifNil: ['']);
+		nextPut: $)
+! !
+
 ! UIComponent methodsFor: 'rendering' !
 htmlString
 
@@ -1553,6 +1932,21 @@ htmlString
 	^builder htmlString
    ! !
 
+! UIComponent methodsFor: 'rendering' !
+postOpen
+ ! !
+
+! UIComponent methodsFor: 'rendering' !
+renderOn: anHTMLBuilder
+
+
+! !
+
+! UIComponent methodsFor: 'rendering' !
+resize
+
+! !
+
 ! UIComponent methodsFor: 'updating' !
 update! !
 
@@ -1560,12 +1954,6 @@ update! !
 idFor: aString
 
 	^self ui idFor: aString! !
-
-! UIComponent methodsFor: 'utility' !
-renderOn: anHTMLBuilder
-
-
-! !
 
 ! CompositeComponent methodsFor: 'accessing' !
 children
@@ -1583,140 +1971,41 @@ initialize
 	super initialize.
 	self children: OrderedCollection new! !
 
-! ListComponent methodsFor: 'accessing' !
-list
+! InputFieldComponent methodsFor: 'accessing' !
+defaultValue
 
-	^list! !
+	^defaultValue! !
 
-! ListComponent methodsFor: 'accessing' !
-list: anObject
+! InputFieldComponent methodsFor: 'accessing' !
+defaultValue: anObject
 
-	list = anObject ifTrue: [^self].
+	defaultValue := anObject! !
 
-	list := anObject.
-	selectionIndex := -1.
-	self
-		updateList;
-		updateSelectionIndex! !
+! InputFieldComponent methodsFor: 'accessing' !
+value
 
-! ListComponent methodsFor: 'accessing' !
-listNumberOfRows
+	^value! !
 
-	^listNumberOfRows! !
+! InputFieldComponent methodsFor: 'accessing' !
+value: anObject
 
-! ListComponent methodsFor: 'accessing' !
-listNumberOfRows: anObject 
+	value := anObject! !
 
-	listNumberOfRows:= anObject! !
+! InputFieldComponent methodsFor: 'callback' !
+inputFieldChanged: aString
 
-! ListComponent methodsFor: 'accessing' !
-optionStyles
+	self value: aString! !
 
-	^optionStyles! !
-
-! ListComponent methodsFor: 'accessing' !
-optionStyles: anObject 
-
-	optionStyles := anObject! !
-
-! ListComponent methodsFor: 'accessing' !
-selectionIndex
-
-	^selectionIndex! !
-
-! ListComponent methodsFor: 'accessing' !
-selectionIndex: anObject 
-	selectionIndex = anObject ifTrue: [^self].
-	selectionIndex := anObject.
-	self updateSelectionIndex! !
-
-! ListComponent methodsFor: 'accessing' !
-ui
-
-	^ui! !
-
-! ListComponent methodsFor: 'accessing' !
-ui: aWebUI
-
-	ui := aWebUI! !
-
-! ListComponent methodsFor: 'callbacks' !
-changedSelectedItem: aString
-
-	self selectionIndex: (Integer readFrom: aString readStream).
-	self raiseEvent: (ListSelectionEvent new
-		selectionIndex: self selectionIndex;
-		yourself) ! !
-
-! ListComponent methodsFor: 'callbacks' !
-doubleClick
-
-	self raiseEvent: DoubleClickEvent new! !
-
-! ListComponent methodsFor: 'rendering' !
+! InputFieldComponent methodsFor: 'rendering' !
 renderOn: anHTMLBuilder
 
-	| heightString |
-
 	anHTMLBuilder
-		div;
+		input;
 			id: (self id, 'Div');
-			attributeAt: 'width' put: '100%'.
-
-	self menu isNil ifFalse: [
-		anHTMLBuilder
-			attributeAt: 'oncontextmenu'
-			put: 'simTalkCallback2(''$', self id , ''', ''openMenuX:y:'', event.pageX, event.pageY); return false;'].
-
-	heightString := self height isNil
-		ifTrue: ['100%']
-		ifFalse: [self height].
-
-	anHTMLBuilder
-			startTag: 'select';
-				id: (self id);
-				attributeAt: 'name' put: self id;
-				attributeAt: 'size' put: self listNumberOfRows printString;
-				attributeAt: 'style' put: 'width: 100%; height: ', heightString, '; background-color: rgba(255, 255, 255, 0.0);';
-				attributeAt: 'onchange' put: 'simTalkCallback1(''$', self id , ''', ''changedSelectedItem:'' , event.target.value);';
-				attributeAt: 'ondblclick' put: 'simTalkCallback0(''$', self id , ''', ''doubleClick'');';
-			endTag: 'select';
-		endDiv
- ! !
-
-! ListComponent methodsFor: 'updating' !
-optionStyleFor: index
-
-	self optionStyles isNil ifTrue: [^''].
-	self optionStyles size >= index ifFalse: [^''].
-	^' style=\"', (self optionStyles at: index), '\"'
-! !
-
-! ListComponent methodsFor: 'updating' !
-selection
-
-	self selectionIndex = 0 ifTrue: [^nil].
-	^self list at: self selectionIndex ! !
-
-! ListComponent methodsFor: 'updating' !
-updateList
-
-	| stream |
-
-	stream := WriteStream on: (ByteString new: 1000).
-
-	self list keysAndValuesDo: [:key :eachElement |
-		stream
-			nextPutAll: '<option value=', key printString, (self optionStyleFor: key), '>';
-			nextPutAll: (self displayBlock isNil ifTrue: [eachElement] ifFalse: [self displayBlock value: eachElement]);
-			nextPutAll: '</option>'].
-
-	self ui setInnerHTMLOf: self id to: stream contents! !
-
-! ListComponent methodsFor: 'updating' !
-updateSelectionIndex
-
-	self ui runJavaScript: 'document.getElementById("', self id, '").selectedIndex = "', (self selectionIndex - 1) printString, '";' ! !
+				attributeAt: 'type' put: 'text';
+				attributeAt: 'value' put: (self defaultValue ifNil: ['']);
+				attributeAt: 'oninput' put: 'simTalkCallback1(''$', (self id) , ''', ''inputFieldChanged:'', document.getElementById(''', (self id, 'Div'), ''').value);';
+		endDiv! !
 
 ! ListDivComponent methodsFor: 'accessing' !
 list
@@ -1745,6 +2034,16 @@ listNumberOfRows: anObject
 	listNumberOfRows:= anObject! !
 
 ! ListDivComponent methodsFor: 'accessing' !
+onSelection
+
+	^onSelection! !
+
+! ListDivComponent methodsFor: 'accessing' !
+onSelection: anObject
+
+	onSelection := anObject! !
+
+! ListDivComponent methodsFor: 'accessing' !
 optionStyles
 
 	^optionStyles! !
@@ -1753,6 +2052,31 @@ optionStyles
 optionStyles: anObject 
 
 	optionStyles := anObject! !
+
+! ListDivComponent methodsFor: 'accessing' !
+scrollHeight
+
+	^scrollHeight! !
+
+! ListDivComponent methodsFor: 'accessing' !
+scrollHeight: anObject
+
+	scrollHeight := anObject! !
+
+! ListDivComponent methodsFor: 'accessing' !
+scrollHeightWith: aString
+
+	scrollHeight := Integer readFrom: aString readStream ! !
+
+! ListDivComponent methodsFor: 'accessing' !
+scrollTop
+
+	^scrollTop! !
+
+! ListDivComponent methodsFor: 'accessing' !
+scrollTop: anObject
+
+	scrollTop := anObject! !
 
 ! ListDivComponent methodsFor: 'accessing' !
 selection
@@ -1785,52 +2109,114 @@ ui: aWebUI
 changedSelectedItem: anObject
 
 	self selectionIndex: (Integer readFrom: anObject readStream).
+	self updateList.
 	self raiseEvent: (ListSelectionEvent new
 		selectionIndex: self selectionIndex;
 		yourself).
-	self updateList
 ! !
+
+! ListDivComponent methodsFor: 'callbacks' !
+doSelectWith: anObject
+
+	anObject inspect! !
 
 ! ListDivComponent methodsFor: 'callbacks' !
 doubleClick
 
 	self raiseEvent: DoubleClickEvent new! !
 
+! ListDivComponent methodsFor: 'callbacks' !
+doubleClickWith: anObject
+
+	self raiseEvent: DoubleClickEvent new ! !
+
+! ListDivComponent methodsFor: 'callbacks' !
+scrolled: anObject
+
+	self scrollTop: (Number readFrom: anObject readStream)! !
+
 ! ListDivComponent methodsFor: 'rendering' !
 renderOn: anHTMLBuilder
 
-	| heightString |
-
+	listRendered := false.
 	anHTMLBuilder
 		div;
 			id: (self id, 'Div');
-			attributeAt: 'width' put: '100%';
-			attributeAt: 'style' put: 'border: 1px black solid; overflow-y: auto;';
-			attributeAt: 'padding' put: '5px'.
+			bounds: self bounds;
+			attributeAt: 'style' put: self styleString.
 
 	self menu isNil ifFalse: [
 		anHTMLBuilder
 			attributeAt: 'oncontextmenu'
 			put: 'simTalkCallback2(''$', self id , ''', ''openMenuX:y:'', event.pageX, event.pageY); return false;'].
 
-	heightString := self height isNil
-		ifTrue: ['100%']
-		ifFalse: [self height].
-
 	anHTMLBuilder
-			startTag: 'div';
-				attributeAt: 'style' put: 'list-style-type: none';
-				id: (self id);
-			endTag: 'dov';
 		endDiv
  ! !
+
+! ListDivComponent methodsFor: 'rendering' !
+resize
+
+	self ui setAttribute: 'style' of: (self id, 'Div') to: self styleString.
+	self updateForResize
+! !
+
+! ListDivComponent methodsFor: 'rendering' !
+styleString
+
+	^self bounds isNil
+		ifTrue: ['border: 1px black solid;min-height: 0;overflow: auto;']
+		ifFalse: ['border: 1px black solid;min-height: 0;position: absolute; top: ', (self bounds top) printString, 'px; left: ', (self bounds left) printString, 'px; width: ', (self bounds width) printString, 'px; height: ', (self bounds height) printString, 'px;'.].
+! !
+
+! ListDivComponent methodsFor: 'updating' !
+doubleClickCallbackString: itemName
+
+	^'simTalkCallback1(''$', self id , ''', ''doubleClickWith:'' , ''', itemName, ''');'
+
+! !
 
 ! ListDivComponent methodsFor: 'updating' !
 optionStyleFor: index
 
 	self optionStyles isNil ifTrue: [^''].
 	self optionStyles size >= index ifFalse: [^''].
-	^' style=\"', (self optionStyles at: index), '\"'
+	^self optionStyles at: index
+! !
+
+! ListDivComponent methodsFor: 'updating' !
+scrollToSelection
+
+	self ui setAttribute: 'scrollTop' of: self scrollableDivName to: ((scrollHeight - self bounds height + 20) * ((self selectionIndex - 1) asFloat / self list size asFloat)) asInteger printString ! !
+
+! ListDivComponent methodsFor: 'updating' !
+scrollableDivName
+
+	^self id , '-scrollableDiv'! !
+
+! ListDivComponent methodsFor: 'updating' !
+selectItemCallbackString: itemName
+
+	^'simTalkCallback1(''$', self id , ''', ''changedSelectedItem:'' , ''', itemName, ''');'
+
+! !
+
+! ListDivComponent methodsFor: 'updating' !
+update
+
+	self updateList! !
+
+! ListDivComponent methodsFor: 'updating' !
+updateForResize
+
+	| style |
+
+	listRendered ifFalse: [^self updateList].
+
+	style := self bounds isNil
+			ifTrue: ['min-height: 0;overflow: auto;']
+			ifFalse: ['padding: 2px; min-height: 0;overflow: auto;position: absolute; width: ', (self bounds width - 4) printString, 'px; height: ', (self bounds height - 4) printString, 'px;'.].
+	self ui setAttribute: 'style' of: self scrollableDivName to: style
 ! !
 
 ! ListDivComponent methodsFor: 'updating' !
@@ -1838,24 +2224,43 @@ updateList
 
 	| htmlBuilder |
 
+	self list isNil ifTrue: [^self].
+
 	htmlBuilder := HTMLBuilder new.
 
 	htmlBuilder div: [:builder1 |
-		builder1 attributeAt: 'style' put: 'padding: 5px;'.
+		self bounds isNil
+			ifTrue: [builder1 attributeAt: 'style' put: 'min-height: 0;overflow: auto;']
+			ifFalse: [builder1 attributeAt: 'style' put: 'padding: 2px; min-height: 0;overflow: auto;position: absolute; width: ', (self bounds width - 4) printString, 'px; height: ', (self bounds height - 4) printString, 'px;'.].
+
+		builder1 attributeAt: 'id' put: self scrollableDivName.
+		builder1 attributeAt: 'onscroll' put: ('simTalkCallback1(''$', self id , ''', ''scrolled:'', document.getElementById(''', self scrollableDivName , ''').scrollTop);').
+
 		self list keysAndValuesDo: [:key :eachElement |
 			builder1 div: [:builder2 |
+				| optionStyle |
 				builder2 id: self id, '-', key printString.
-				key = self selectionIndex ifTrue: [
-					builder2 attributeAt: 'style' put: 'background-color: #C0C0FF;'].
-				builder2 attributeAt: 'onclick' put: 'simTalkCallback1(''$', self id , ''', ''changedSelectedItem:'' , ''', key printString, ''');'.
-				builder2 text: (self displayBlock isNil ifTrue: [eachElement] ifFalse: [self displayBlock value: eachElement])
+				optionStyle := (self optionStyleFor: key) , 'cursor: default;'.
+				key = self selectionIndex
+					ifTrue: [builder2 attributeAt: 'style' put: optionStyle, 'background-color: #C0C0FF;']
+					ifFalse: [optionStyle isEmpty ifFalse: [builder2 attributeAt: 'style' put: optionStyle]].
+				builder2 attributeAt: 'onclick' put: (self selectItemCallbackString: key printString).
+				builder2 attributeAt: 'ondblclick' put: (self doubleClickCallbackString: key printString).
+				builder2 text: (self displayBlock isNil ifTrue: [eachElement] ifFalse: [self displayBlock value: eachElement]) displayString
 				]]].
 
-	self ui setInnerHTMLOf: self id to: (self ui javascriptQuote: htmlBuilder htmlString)! !
+	self ui setInnerHTMLOf: (self id, 'Div') to: (self ui javascriptQuote: htmlBuilder htmlString).
+	self scrollTop notNil ifTrue: [
+		self ui setAttribute: 'scrollTop' of: self scrollableDivName to: self scrollTop printString].
+
+	self ui runJavaScript: 'simTalkCallback1(''$', self id , ''', ''scrollHeightWith:'', document.getElementById(''', self scrollableDivName , ''').scrollHeight);'.
+	listRendered := true
+  ! !
 
 ! ListDivComponent methodsFor: 'updating' !
 updateSelectionIndex
 
+	self updateList
 ! !
 
 ! PushButtonComponent methodsFor: 'accessing' !
@@ -1869,6 +2274,11 @@ actionBlock: aBlock
 	actionBlock := aBlock ! !
 
 ! PushButtonComponent methodsFor: 'accessing' !
+backgroundColor
+
+	^'#CBB'! !
+
+! PushButtonComponent methodsFor: 'accessing' !
 label
 
 	^label ! !
@@ -1878,6 +2288,12 @@ label: aString
 
 	label := aString ! !
 
+! PushButtonComponent methodsFor: 'accessing' !
+textSizeWith: aDictionary
+
+	textSize := (aDictionary at: 'width') @ (aDictionary at: 'height').
+ ! !
+
 ! PushButtonComponent methodsFor: 'actions' !
 pressAction
 
@@ -1885,7 +2301,32 @@ pressAction
  ! !
 
 ! PushButtonComponent methodsFor: 'rendering' !
-renderOn: anHTMLBuilder
+font
+
+	^'16px "Times New Roman"'
+! !
+
+! PushButtonComponent methodsFor: 'rendering' !
+measureText
+
+	textSize isNil ifFalse: [^self].
+	self ui runJavaScript: 'measureTextOnCanvas (`', self label, '`, `', self font, '`, `$', self id, '` , `', #textSizeWith: ,'`);'
+ ! !
+
+! PushButtonComponent methodsFor: 'rendering' !
+newRenderOn: anHTMLBuilder
+
+	anHTMLBuilder
+		div;
+			id: (self id, 'Div');
+			attributeAt: 'tabIndex' put: '2';
+			attributeAt: 'onclick' put: 'simTalkCallback0(''$', self id , ''', ''pressAction'');';
+			attributeAt: 'style' put: self styleString;
+			text: (self label ifNil: ['']);
+		endDiv.! !
+
+! PushButtonComponent methodsFor: 'rendering' !
+oldRenderOn: anHTMLBuilder
 
 	anHTMLBuilder
 		div;
@@ -1896,7 +2337,82 @@ renderOn: anHTMLBuilder
 			attributeAt: 'style' put: 'align-self: center;';
 			text: (self label ifNil: ['']);
 		endDiv
-     ! !
+    ! !
+
+! PushButtonComponent methodsFor: 'rendering' !
+oldStyleString
+
+	^'align-self: center'
+! !
+
+! PushButtonComponent methodsFor: 'rendering' !
+renderOn: anHTMLBuilder
+
+	self newRenderOn: anHTMLBuilder  ! !
+
+! PushButtonComponent methodsFor: 'rendering' !
+resize
+
+	self ui setAttribute: 'style' of: (self id, 'Div') to: self styleString.
+	self measureText! !
+
+! PushButtonComponent methodsFor: 'rendering' !
+styleString
+
+	^self bounds isNil
+		ifTrue: ['display: grid; align-items: center; text-align: center; background-color: ', self backgroundColor, ';border: 1px black solid;position: absolute;']
+		ifFalse: ['cursor: pointer; box-shadow: 0 4px 0 rgba(85,85,85,0.2), inset 0 1px rgba(255,255,255,0.08); display: grid; align-items: center; text-align: center; border-radius: 12px; background: linear-gradient(180deg, color-mix(in srgb, white 80%, #CBB), #CBB);border: 1px black solid; position: absolute; margin: 2px; top: ', (self bounds top) printString, 'px; left: ', (self bounds left) printString, 'px; width: ', (self bounds width) printString, 'px; height: ', (self bounds height - 8) printString, 'px;'.].
+
+! !
+
+! RadioButtonComponent methodsFor: 'accessing' !
+label
+
+	^label! !
+
+! RadioButtonComponent methodsFor: 'accessing' !
+label: anObject
+
+	label := anObject! !
+
+! RadioButtonComponent methodsFor: 'accessing' !
+onClicked
+
+	^onClicked! !
+
+! RadioButtonComponent methodsFor: 'accessing' !
+onClicked: anObject
+
+	onClicked := anObject! !
+
+! RadioButtonComponent methodsFor: 'accessing' !
+radioGroupName
+
+	^radioGroupName! !
+
+! RadioButtonComponent methodsFor: 'accessing' !
+radioGroupName: anObject
+
+	radioGroupName := anObject! !
+
+! RadioButtonComponent methodsFor: 'callbacks' !
+radioButtonClicked
+
+	self ui perform: self onClicked! !
+
+! RadioButtonComponent methodsFor: 'rendering' !
+renderOn: anHTMLBuilder
+
+	anHTMLBuilder
+		input;
+			id: (self id, 'Div');
+				attributeAt: 'type' put: 'radio';
+				attributeAt: 'value' put: 'Instance';
+				attributeAt: 'name' put: (self idFor: self radioGroupName);
+				attributeAt: 'onchange' put: 'simTalkCallback0(''$', self id , ''', ''radioButtonClicked'');';
+			text: (self label ifNil: ['']);
+		endDiv
+! !
 
 ! RichTextEditorComponent methodsFor: 'accessing' !
 emphasisCollection
@@ -1929,6 +2445,11 @@ selectionStart: aNumber
 	selectionStart := aNumber! !
 
 ! RichTextEditorComponent methodsFor: 'accessing' !
+setText: aString
+
+	text := aString! !
+
+! RichTextEditorComponent methodsFor: 'accessing' !
 subject
 
 	^subject ifNil: [Doit]! !
@@ -1951,6 +2472,46 @@ text: aString
 		clearEmphasis;
 		updateText ! !
 
+! RichTextEditorComponent methodsFor: 'callbacks' !
+captureText: aDictionary
+
+	self setText: (HTMLBuilder new htmlUnquote: (aDictionary at: 'innerHTML')) lfToCR! !
+
+! RichTextEditorComponent methodsFor: 'callbacks' !
+debugItWith: aDictionary
+
+	self ui disableWhile: [self
+		captureText: aDictionary;
+		debugItFrom: (aDictionary at: 'richTextSelectionStart') + 1 to: (aDictionary at: 'richTextSelectionEnd') onError: [^self]]  ! !
+
+! RichTextEditorComponent methodsFor: 'callbacks' !
+doItWith: aDictionary
+
+	self ui disableWhile: [self
+		captureText: aDictionary;
+		evaluateFrom: (aDictionary at: 'richTextSelectionStart') + 1 to: (aDictionary at: 'richTextSelectionEnd') onError: [^self]]  ! !
+
+! RichTextEditorComponent methodsFor: 'callbacks' !
+inspectItWith: aDictionary
+
+	self ui disableWhile: [self
+		captureText: aDictionary;
+		inspectItFrom: (aDictionary at: 'richTextSelectionStart') + 1 to: (aDictionary at: 'richTextSelectionEnd') onError: [^self]]  ! !
+
+! RichTextEditorComponent methodsFor: 'callbacks' !
+printItWith: aDictionary
+
+	self ui disableWhile: [self
+		captureText: aDictionary;
+		printItFrom: (aDictionary at: 'richTextSelectionStart') + 1 to: (aDictionary at: 'richTextSelectionEnd') onError: [^self]]  ! !
+
+! RichTextEditorComponent methodsFor: 'callbacks' !
+timeItWith: aDictionary
+
+	self ui disableWhile: [self
+		captureText: aDictionary;
+		timeItFrom: (aDictionary at: 'richTextSelectionStart') + 1 to: (aDictionary at: 'richTextSelectionEnd') onError: [^self]]  ! !
+
 ! RichTextEditorComponent methodsFor: 'emphasis' !
 addEmphasis: anEmphasisSpan
 
@@ -1960,6 +2521,95 @@ addEmphasis: anEmphasisSpan
 clearEmphasis
 
 	emphasisCollection := OrderedCollection new! !
+
+! RichTextEditorComponent methodsFor: 'evaluating' !
+debugItFrom: start to: end onError: aBlock
+
+	^self evaluate: ('[', (self text copyFrom: start to: end), '] halt; value' ) from: start to: end onError: aBlock! !
+
+! RichTextEditorComponent methodsFor: 'evaluating' !
+evaluate: aString from: start to: end onError: aBlock
+
+	^[SmalltalkParser evaluate: aString for: self subject]
+		on: CompileError
+		do: [:ex |
+ 			| convertedString endOffset code |
+			convertedString := self text lfToCR.
+
+			"The 7 skips past the doit ^[ added in by the evaluate"
+			endOffset := start + (ex endSourceOffset - 7 + 1 min: convertedString size).
+
+			code :=
+				(convertedString copyFrom: 1 to: endOffset),
+				' ' , ex message asString, ' ',
+				(convertedString copyFrom: endOffset + 1 to: convertedString size).
+
+			self
+				text: code;
+				updateText;
+				setSelectionFrom: endOffset to: endOffset + 2 + ex message asString size.
+ 			aBlock value] ! !
+
+! RichTextEditorComponent methodsFor: 'evaluating' !
+evaluateAll
+
+	^self evaluateFor: self subject 
+
+! !
+
+! RichTextEditorComponent methodsFor: 'evaluating' !
+evaluateFor: anObject
+
+	^[SmalltalkParser evaluate: self text for: anObject]
+		on: CompileError
+		do: [:ex |
+ 			| convertedString endOffset code |
+			convertedString := self text lfToCR.
+
+			"The 7 skips past the doit ^[ added in by the evaluate"
+			endOffset := ex endSourceOffset - 7 + 1 min: convertedString size.
+
+			code :=
+				(convertedString copyFrom: 1 to: endOffset),
+				' ' , ex message asString, ' ',
+				(convertedString copyFrom: endOffset + 1 to: convertedString size).
+
+			self
+				text: code;
+				updateText;
+				setSelectionFrom: endOffset to: endOffset + 2 + ex message asString size.
+ 			ex return: nil]! !
+
+! RichTextEditorComponent methodsFor: 'evaluating' !
+evaluateFrom: start to: end onError: aBlock
+
+	^self evaluate: (self text copyFrom: start to: end) from: start to: end onError: aBlock! !
+
+! RichTextEditorComponent methodsFor: 'evaluating' !
+inspectFrom: start to: end onError: aBlock
+
+	^(self evaluateFrom: start to: end onError: aBlock) inspect ! !
+
+! RichTextEditorComponent methodsFor: 'evaluating' !
+inspectItFrom: start to: end onError: aBlock
+
+	^(self evaluateFrom: start to: end onError: aBlock) inspect ! !
+
+! RichTextEditorComponent methodsFor: 'evaluating' !
+printItFrom: start to: end onError: aBlock
+
+	| result string |
+
+	result := self evaluateFrom: start to: end onError: aBlock.
+	string := ' ==> ', result printString.
+
+	self ui runJavaScript: 'insertRichText("' , self id , '", "', (self ui javascriptQuote: string), '",',  end printString, ');'.
+	self setSelectionFrom: end to: end + string size ! !
+
+! RichTextEditorComponent methodsFor: 'evaluating' !
+timeItFrom: start to: end onError: aBlock
+
+	^self evaluate: ('MessageBox message: (Time microsecondsToRun: [', (self text copyFrom: start to: end), ']) printString , '' microseconds''' ) from: start to: end onError: aBlock! !
 
 ! RichTextEditorComponent methodsFor: 'initializing' !
 initialize
@@ -1973,33 +2623,6 @@ initialize
 ! !
 
 ! RichTextEditorComponent methodsFor: 'menus' !
-codeMenu
-
-	^PopupMenuUI new
-		widgetId: self id;
-		addMenuItem: self doItMenuItem;
-		addMenuItem: self printItMenuItem;
-		addMenuItem: self inspectItMenuItem;
-		addMenuItem: self loadMenuItem;
-		addMenuItem: self saveMenuItem;
-		yourself! !
-
-! RichTextEditorComponent methodsFor: 'menus' !
-doItMenuItem
-
-	^PopupMenuItem new
-		id: #doIt;
-		name: 'Do It';
-		action: [:args | self doItWith: args];
-		requestedValues: #('selectedString');
-		yourself! !
-
-! RichTextEditorComponent methodsFor: 'menus' !
-doItWith: aDictionary
-
-	self ui disableWhile: [SmalltalkParser evaluate: (aDictionary at: 'selectedString') for: self subject]! !
-
-! RichTextEditorComponent methodsFor: 'menus' !
 inspectItMenuItem
 
 	^PopupMenuItem new
@@ -2008,20 +2631,6 @@ inspectItMenuItem
 			action: [:args | self inspectItWith: args];
 			requestedValues: #('selectedString');
 			yourself! !
-
-! RichTextEditorComponent methodsFor: 'menus' !
-inspectItWith: aDictionary
-
-	| object |
-
-	self ui disableWhile: [object := SmalltalkParser evaluate: (aDictionary at: 'selectedString') for: self subject].
-
-	object inspect! !
-
-! RichTextEditorComponent methodsFor: 'menus' !
-installCodeMenu
-
-	self menu: self codeMenu! !
 
 ! RichTextEditorComponent methodsFor: 'menus' !
 load: aString
@@ -2062,17 +2671,8 @@ printItMenuItem
 		id: #printIt;
 		name: 'Print It';
 		action: [:args | self printItWith: args];
-		requestedValues: #('selectedString' 'selectionStart' 'selectionEnd');
-		yourself! !
-
-! RichTextEditorComponent methodsFor: 'menus' !
-printItWith: aDictionary
-
-	| result |
-
-	self ui disableWhile: [result := ' ==> ', (SmalltalkParser evaluate: (aDictionary at: 'selectedString')) printString].
-
-	self write: result inTextArea: self id position: (aDictionary at: 'selectionEnd')! !
+		requestedValues: #('richTextSelectionStart' 'richTextSelectionEnd');
+		yourself ! !
 
 ! RichTextEditorComponent methodsFor: 'menus' !
 save: aString to: filenameString
@@ -2100,23 +2700,82 @@ saveWith: aDictionary
 	self request: 'Filename to save?' initialAnswer: 'workspace.ws' answerBlock: [:string | self save: (aDictionary at: 'value') to: string]! !
 
 ! RichTextEditorComponent methodsFor: 'rendering' !
-renderOn: anHTMLBuilder
+divStyleString
 
-	| heightString |
+	| widthString heightString |
+
+	widthString := self bounds isNil
+		ifTrue: ['100%']
+		ifFalse: [(self bounds width - 4) printString , 'px'].
+
+	heightString := self bounds isNil
+		ifTrue: ['100%']
+		ifFalse: [(self bounds height - 4) printString , 'px'].
+
+	^'border: 1px solid black; padding: 2px; overflow-y: scroll;' ,
+					';background-color: transparent; resize: none; white-space:pre-wrap; font-family:arial; font-size:14px;line-height:1.4;' ,
+					'width: ', widthString, '; height: ' , heightString, ';'! !
+
+! RichTextEditorComponent methodsFor: 'rendering' !
+postOpen
+
+	self ui runJavaScript: 'enableTabsInRichTextArea("', self id, '");'.
+
+	self ui runJavaScript: 'captureControlKeyInArea("$', self id,
+		'","d',
+		'", "', self id,
+		'", "', self id,
+		'", "', #doItWith: , '',
+		'", ["richTextSelectionStart", "richTextSelectionEnd", "innerHTML"]' ,
+		');'.
+
+	self ui runJavaScript: 'captureControlKeyInArea("$', self id,
+		'","p',
+		'", "', self id,
+		'", "', self id,
+		'", "', #printItWith: , '',
+		'", ["richTextSelectionStart", "richTextSelectionEnd", "innerHTML"]' ,
+		');'.
+
+	self ui runJavaScript: 'captureControlKeyInArea("$', self id,
+		'","q',
+		'", "', self id,
+		'", "', self id,
+		'", "', #inspectItWith: , '',
+		'", ["richTextSelectionStart", "richTextSelectionEnd", "innerHTML"]' ,
+		');'.
+
+	self ui runJavaScript: 'captureControlKeyInArea("$', self id,
+		'","b',
+		'", "', self id,
+		'", "', self id,
+		'", "', #debugItWith: , '',
+		'", ["richTextSelectionStart", "richTextSelectionEnd", "innerHTML"]' ,
+		');'.
+
+	self ui runJavaScript: 'captureControlKeyInArea("$', self id,
+		'","k',
+		'", "', self id,
+		'", "', self id,
+		'", "', #timeItWith: , '',
+		'", ["richTextSelectionStart", "richTextSelectionEnd", "innerHTML"]' ,
+		');'.
+
+! !
+
+! RichTextEditorComponent methodsFor: 'rendering' !
+renderOn: anHTMLBuilder
 
 	anHTMLBuilder
 		div;
 			id: (self id, 'Div');
+			bounds: self bounds;
 			attributeAt: 'width' put: '100%'.
 
 	self menu isNil ifFalse: [
 		anHTMLBuilder
 			attributeAt: 'oncontextmenu'
 			put: 'simTalkCallback2(''$', self id , ''', ''openMenuX:y:'', event.pageX, event.pageY); return false;'].
-
-	heightString := self height isNil
-		ifTrue: ['100%']
-		ifFalse: [self height].
 
 	anHTMLBuilder
 			startTag: 'div';
@@ -2125,18 +2784,18 @@ renderOn: anHTMLBuilder
 				attributeAt: 'name' put: self id;
 				attributeAt: 'width' put: '100%';
 				attributeAt: 'spellcheck' put: 'false';
-				attributeAt: 'style' put: 'border: 1px solid black; padding: 3px;overflow-y: scroll;width: 100%; height: ', heightString,
-					';background-color: transparent; resize: none; white-space:pre; font-family:arial; font-size:14px;line-height:1.4;';
-				attributeAt: 'tabIndex' put: '2'.
-
-			self height isNil
-				ifTrue: [anHTMLBuilder attributeAt: 'height' put: '100%']
-				ifFalse: [anHTMLBuilder attributeAt: 'height' put: self height].
+				attributeAt: 'style' put: self divStyleString;
+				attributeAt: 'tabIndex' put: '2';
+				attributeAt: 'onfocusout' put: 'requestedFieldsCallbackNoCapture(''$', self id , ''', ''nil'', ''', self id , ''', ''captureText:'', [''innerHTML'']);'.
 
 		anHTMLBuilder
 			endTag: 'div';
-		endDiv
-   ! !
+		endDiv ! !
+
+! RichTextEditorComponent methodsFor: 'rendering' !
+resize
+
+	self ui setAttribute: 'style' of: self id to: self divStyleString! !
 
 ! RichTextEditorComponent methodsFor: 'updating' !
 quotedText
@@ -2197,249 +2856,12 @@ text: anObject
 ! TextComponent methodsFor: 'rendering' !
 renderOn: anHTMLBuilder
 
-	anHTMLBuilder text: self text! !
-
-! TextEditorComponent methodsFor: 'accessing' !
-emphasisCollection
-
-	^emphasisCollection! !
-
-! TextEditorComponent methodsFor: 'accessing' !
-emphasisCollection: aCollection
-
-	emphasisCollection := aCollection! !
-
-! TextEditorComponent methodsFor: 'accessing' !
-selectionEnd
-
-	^selectionEnd! !
-
-! TextEditorComponent methodsFor: 'accessing' !
-selectionEnd: aNumber
-
-	selectionEnd := aNumber! !
-
-! TextEditorComponent methodsFor: 'accessing' !
-selectionStart
-
-	^selectionStart! !
-
-! TextEditorComponent methodsFor: 'accessing' !
-selectionStart: aNumber
-
-	selectionStart := aNumber! !
-
-! TextEditorComponent methodsFor: 'accessing' !
-subject
-
-	^subject ifNil: [Doit]! !
-
-! TextEditorComponent methodsFor: 'accessing' !
-subject: anObject
-
-	subject := anObject! !
-
-! TextEditorComponent methodsFor: 'accessing' !
-text
-
-	^text! !
-
-! TextEditorComponent methodsFor: 'accessing' !
-text: aString
-
-	text := aString.
-	self updateText ! !
-
-! TextEditorComponent methodsFor: 'emphasis' !
-addEmphasis: anEmphasisSpan
-
-	self emphasisCollection add: anEmphasisSpan! !
-
-! TextEditorComponent methodsFor: 'emphasis' !
-clearEmphasis
-
-	emphasisCollection := OrderedCollection new! !
-
-! TextEditorComponent methodsFor: 'initializing' !
-initialize
-
-	super initialize.
-	self
-		text: '';
-		selectionStart: 0;
-		selectionEnd: 0;
-		emphasisCollection: OrderedCollection new
-! !
-
-! TextEditorComponent methodsFor: 'menus' !
-codeMenu
-
-	^PopupMenuUI new
-		widgetId: self id;
-		addMenuItem: self doItMenuItem;
-		addMenuItem: self printItMenuItem;
-		addMenuItem: self inspectItMenuItem;
-		addMenuItem: self loadMenuItem;
-		addMenuItem: self saveMenuItem;
-		yourself! !
-
-! TextEditorComponent methodsFor: 'menus' !
-doItMenuItem
-
-	^PopupMenuItem new
-		id: #doIt;
-		name: 'Do It';
-		action: [:args | self doItWith: args];
-		requestedValues: #('selectedString');
-		yourself! !
-
-! TextEditorComponent methodsFor: 'menus' !
-doItWith: aDictionary
-
-	self ui disableWhile: [SmalltalkParser evaluate: (aDictionary at: 'selectedString') for: self subject]! !
-
-! TextEditorComponent methodsFor: 'menus' !
-inspectItMenuItem
-
-	^PopupMenuItem new
-			id: #inspectIt;
-			name: 'Inspect It';
-			action: [:args | self inspectItWith: args];
-			requestedValues: #('selectedString');
-			yourself! !
-
-! TextEditorComponent methodsFor: 'menus' !
-inspectItWith: aDictionary
-
-	| object |
-
-	self ui disableWhile: [object := SmalltalkParser evaluate: (aDictionary at: 'selectedString') for: self subject].
-
-	object inspect! !
-
-! TextEditorComponent methodsFor: 'menus' !
-installCodeMenu
-
-	self menu: self codeMenu! !
-
-! TextEditorComponent methodsFor: 'menus' !
-load: aString
-
-	| workspaceContents fileStream |
-
-	aString isNil ifTrue: [^self].
-	aString asFilename exists ifFalse: [^self message: 'File doesn''t exist'].
-
-	fileStream := aString asFilename readStream.
-	workspaceContents := fileStream upToEnd.
-	fileStream close.
-
-	self
-		clearEmphasis;
-		text: workspaceContents;
-		updateText! !
-
-! TextEditorComponent methodsFor: 'menus' !
-loadMenuItem
-
-	^PopupMenuItem new
-		id: #load;
-		name: 'Load...';
-		action: [:args | self loadWith: args];
-		requestedValues: #();
-		yourself! !
-
-! TextEditorComponent methodsFor: 'menus' !
-loadWith: aDictionary
-
-	self request: 'Filename to load?' initialAnswer: 'workspace.ws' answerBlock: [:string | self load: string]! !
-
-! TextEditorComponent methodsFor: 'menus' !
-printItMenuItem
-
-	^PopupMenuItem new
-		id: #printIt;
-		name: 'Print It';
-		action: [:args | self printItWith: args];
-		requestedValues: #('selectedString' 'selectionStart' 'selectionEnd');
-		yourself! !
-
-! TextEditorComponent methodsFor: 'menus' !
-printItWith: aDictionary
-
-	| result |
-
-	self ui disableWhile: [result := ' ==> ', (SmalltalkParser evaluate: (aDictionary at: 'selectedString')) printString].
-
-	self write: result inTextArea: self id position: (aDictionary at: 'selectionEnd')! !
-
-! TextEditorComponent methodsFor: 'menus' !
-save: aString to: filenameString
-
-	| file |
-
-	file := filenameString asFilename writeStream.
-	file nextPutAll: aString.
-	file close
-! !
-
-! TextEditorComponent methodsFor: 'menus' !
-saveMenuItem
-
-	^PopupMenuItem new
-		id: #save;
-		name: 'Save...';
-		action: [:args | self saveWith: args];
-		requestedValues: #('value');
-		yourself! !
-
-! TextEditorComponent methodsFor: 'menus' !
-saveWith: aDictionary
-
-	self request: 'Filename to save?' initialAnswer: 'workspace.ws' answerBlock: [:string | self save: (aDictionary at: 'value') to: string]! !
-
-! TextEditorComponent methodsFor: 'rendering' !
-renderOn: anHTMLBuilder
-
-	| heightString |
-
 	anHTMLBuilder
 		div;
 			id: (self id, 'Div');
-			attributeAt: 'width' put: '100%'.
-
-	self menu isNil ifFalse: [
-		anHTMLBuilder
-			attributeAt: 'oncontextmenu'
-			put: 'simTalkCallback2(''$', self id , ''', ''openMenuX:y:'', event.pageX, event.pageY); return false;'].
-
-	heightString := self height isNil
-		ifTrue: ['100%']
-		ifFalse: [self height].
-
-	anHTMLBuilder
-			startTag: 'textarea';
-				id: (self id);
-				attributeAt: 'spellcheck' put: 'false';
-				attributeAt: 'name' put: self id;
-				attributeAt: 'width' put: '100%';
-				attributeAt: 'style' put: 'width: 100%; height: ', heightString, ';background-color: transparent; resize: none;';
-				attributeAt: 'tabIndex' put: '2'.
-
-			self height isNil
-				ifTrue: [anHTMLBuilder attributeAt: 'height' put: '100%']
-				ifFalse: [anHTMLBuilder attributeAt: 'height' put: self height].
-
-		anHTMLBuilder
-			endTag: 'textarea';
-		endDiv
-   ! !
-
-! TextEditorComponent methodsFor: 'updating' !
-updateText
-
-	self ui isNil ifTrue: [^self].
-	self ui setAttribute: 'value' of: self id to: (self ui javascriptQuote: self text withEmphasis: self emphasisCollection) ! !
+			attributeAt: 'width' put: '100%';
+			text: self text;
+		endDiv! !
 
 ! UIOperation methodsFor: 'accessing' !
 arguments
@@ -2548,6 +2970,16 @@ nextComponentName
 ! !
 
 ! UIScreen methodsFor: 'accessing' !
+webSession
+
+	^webSession! !
+
+! UIScreen methodsFor: 'accessing' !
+webSession: anObject
+
+	webSession := anObject! !
+
+! UIScreen methodsFor: 'accessing' !
 webSocket
 	^webSocket
 ! !
@@ -2566,6 +2998,7 @@ removeComponent: aComponent
 initialize
 
 	self
+		webSession: WebSession new;
 		components: OrderedCollection new;
 		componentNumber: 0;
 		reset
@@ -2578,31 +3011,6 @@ reset
 		deletedComponents: OrderedCollection new;
 		modifiedComponents: OrderedCollection new
 ! !
-
-! UIScreen methodsFor: 'rendering' !
-refreshCommands
-	^self addedCommands copy
-		addAll: self modifiedCommands;
-		addAll: self deletedCommands;
-		add: #('render' #());
-		yourself
-! !
-
-! UIScreen methodsFor: 'rendering' !
-renderChanges
-
-	| stream |
-	stream := WriteStream on: (String new: 100).
-
-	stream nextPut: $~.
-	self renderChangesOn: stream.
-	webSocket send: stream contents! !
-
-! UIScreen methodsFor: 'rendering' !
-renderChangesOn: aStream
-
-	self refreshCommands jsonOn: aStream.
-	self reset! !
 
 ! UIScreen class methodsFor: 'instance creation' !
 new
@@ -2657,9 +3065,22 @@ sessionVariables: anObject
 	sessionVariables := anObject! !
 
 ! WebSession methodsFor: 'applications' !
+bringToTop: anApplication
+
+	(self applications includes: anApplication) ifFalse: [^self].
+
+	self applications remove: anApplication; add: anApplication
+ ! !
+
+! WebSession methodsFor: 'applications' !
 closeAllApplications
 
 	self applications do: [:each | each close]! !
+
+! WebSession methodsFor: 'applications' !
+currentApplication
+
+	^self applications last ! !
 
 ! WebSession methodsFor: 'applications' !
 openWindowIDs
@@ -2762,7 +3183,7 @@ closeAllApplications
 ! WebSession class methodsFor: 'instance creation' !
 current
 
-	^current ifNil: [current := self new]! !
+	^CurrentScreen webSession! !
 
 ! WebSession class methodsFor: 'instance creation' !
 new
@@ -2888,13 +3309,9 @@ bindings: anObject
 	bindings := anObject! !
 
 ! WebUI methodsFor: 'accessing' !
-bounds: aRectangle
+bounds
 
-	bounds := aRectangle.
-	origin := aRectangle origin.
-	aRectangle corner isNil
-		ifTrue: [extent := nil]
-		ifFalse: [extent := aRectangle extent]! !
+	^0 @ 35 corner: self extent! !
 
 ! WebUI methodsFor: 'accessing' !
 extent
@@ -2915,6 +3332,16 @@ flags
 flags: aSet
 
 	flags := aSet! !
+
+! WebUI methodsFor: 'accessing' !
+frame
+
+	^frame! !
+
+! WebUI methodsFor: 'accessing' !
+frame: anObject
+
+	frame := anObject! !
 
 ! WebUI methodsFor: 'accessing' !
 htmlTree
@@ -2954,15 +3381,25 @@ parentName
 parentName: aString
 	parentName := aString! !
 
+! WebUI methodsFor: 'accessing' !
+title: aString
+
+	title := aString! !
+
 ! WebUI methodsFor: 'bindings' !
 bindingAt: bindingName
 
-	^self bindingAt: bindingName ifAbsentPut: [ValueHolder new]! !
+	^self bindings at: bindingName ! !
 
 ! WebUI methodsFor: 'bindings' !
 bindingAt: bindingName ifAbsentPut: aBlock
 
 	^self bindings at: bindingName ifAbsentPut: aBlock! !
+
+! WebUI methodsFor: 'bindings' !
+bindingAt: bindingName put: anObject
+
+	^self bindings at: bindingName put: anObject! !
 
 ! WebUI methodsFor: 'bindings' !
 runJavaScript: aString
@@ -3016,6 +3453,28 @@ withinWebUpdateDo: aBlock
 addComponent: aComponent beforeEndOf: parentName
 
 	self addHTMLBeforeEndOf: parentName to: aComponent htmlString! !
+
+! WebUI methodsFor: 'building' !
+build
+
+	| builder |
+	builder := WindowBuilder on: self.
+	self buildOn: builder.
+	builder installOn: self
+ ! !
+
+! WebUI methodsFor: 'building' !
+buildOn: builder ! !
+
+! WebUI methodsFor: 'building' !
+defaultFont
+
+	^'16px "Times New Roman"' ! !
+
+! WebUI methodsFor: 'building' !
+font
+
+	^self defaultFont ! !
 
 ! WebUI methodsFor: 'building' !
 postBuild! !
@@ -3105,6 +3564,9 @@ javascriptQuote: aString withEmphasis: aCollectionOfEmphasisSpan
 
 ! WebUI methodsFor: 'closing' !
 close
+
+	self preClose.
+
 	WebSession current closeApplication: self.
 	self bindings keys do: [:key | (bindings at: key) unbind].
 
@@ -3118,20 +3580,10 @@ bindComponent: aComponent
 	WebSession current sessionVariableAt: aComponent id put: aComponent ! !
 
 ! WebUI methodsFor: 'components' !
-listComponentNamed: aSymbol menu: aMenu
+listDivComponentNamed: aSymbol menu: aMenu
 
 	^self bindingAt: aSymbol ifAbsentPut: [
-		ListComponent new
-			bindTo: self as: aSymbol;
-			listNumberOfRows: 10;
-			menu: aMenu;
-			yourself] ! !
-
-! WebUI methodsFor: 'components' !
-textEditorComponentNamed: aSymbol menu: aMenu
-
-	^self bindingAt: aSymbol ifAbsentPut: [
-		TextEditorComponent new
+		ListDivComponent new
 			bindTo: self as: aSymbol;
 			menu: aMenu;
 			yourself] ! !
@@ -3158,53 +3610,21 @@ appDivOn: anHTMLBuilder
 			resizeDivOn: builder]! !
 
 ! WebUI methodsFor: 'opening' !
-bottomRightResizeDiv
-
-	^HTMLBuilder new
-		div: [:builder |
-			builder
-				attributeAt: 'id' put: (self idFor: 'windowDrag');
-				attributeAt: 'style' put: 'position: absolute; top: 0; bottom: 0; width: 3000px; height: 2000px; background-color: transparent;';
-				attributeAt: 'onmousemove' put: self bottomRightResizeMouseMoveCallbackString;
-				attributeAt: 'onmouseup' put: self bottomRightResizeMouseUpCallbackString];
-		htmlString! !
-
-! WebUI methodsFor: 'opening' !
-bottomRightResizeMouseMoveCallbackString
-
-	| stream |
-
-	stream := WriteStream on: (String new: 40).
-	stream
-		nextPutAll: 'requestedFieldsCallback(''$', self appName, ''', ''';
-		nextPutAll: self appName;
-		nextPutAll: ''', ''';
-		nextPutAll: self appName;
-		nextPutAll: ''', ''resizeBottomRightWindow:'', [''pageX'', ''pageY''], event);'.
-
-	^stream contents! !
-
-! WebUI methodsFor: 'opening' !
-bottomRightResizeMouseUpCallbackString
-
-	| stream |
-
-	stream := WriteStream on: (String new: 40).
-	stream
-		nextPutAll: 'requestedFieldsCallback(''$', self appName, ''', ''';
-		nextPutAll: self appName;
-		nextPutAll: ''', ''';
-		nextPutAll: self appName;
-		nextPutAll: ''', ''stopDrag:'', [''pageX'', ''pageY''], event);'.
-
-	^stream contents! !
-
-! WebUI methodsFor: 'opening' !
 bringToTop: aDictionary
 
-	self bringToTop.
-	dragPoint := (aDictionary at: 'pageX') @ (aDictionary at: 'pageY') - self origin.
-	self addHTMLBeforeEndOf: self rootName to: self dragDiv! !
+	| screen |
+	(WebSession current currentApplication == self) ifTrue: [^self].
+	screen := CurrentScreen.
+
+	[self withUIScreen: screen do: [
+		self isOpen ifTrue: [
+			self bringToTop.
+
+			self withinWebUpdateDo: [
+				self bindings do: [:binding | binding update]].
+
+			WebSession current bringToTop: self] ] ] runInMilliseconds: 300
+  ! !
 
 ! WebUI methodsFor: 'opening' !
 closeButtonDivOn: anHTMLBuilder
@@ -3217,11 +3637,16 @@ closeButtonDivOn: anHTMLBuilder
 			attributeAt: 'onclick' put: 'simTalkCallback0(''$', self appName,''', ''close''); event.stopPropagation();';
 			inTag: 'img' do: [:builder2 |
 				builder2
-					attributeAt: 'src' put: 'closeButton.png';
+					attributeAt: 'src' put: 'pictures/closeButton.png';
 					attributeAt: 'width' put: '30';
 					attributeAt: 'height' put: '30'
 				]]
 ! !
+
+! WebUI methodsFor: 'opening' !
+defaultTitle
+
+	^'Sample title'! !
 
 ! WebUI methodsFor: 'opening' !
 defaultWindowExtent
@@ -3239,9 +3664,10 @@ dragBarDivOn: anHTMLBuilder
 	anHTMLBuilder div: [:builder |
 		builder
 			attributeAt: 'id' put: (self idFor: 'dragbar');
-			attributeAt: 'style' put: 'background-color: #0000C0; color: white; width: 100%; font-family: sans-serif; font-weight: bold; padding: 8px;';
+			attributeAt: 'style' put: 'background-color: #0000C0; color: white; font-family: sans-serif; font-weight: bold; padding: 8px;';
 			attributeAt: 'onmousedown' put: self titleClickCallbackString;
-			text: self title]! !
+			text: self title]
+! !
 
 ! WebUI methodsFor: 'opening' !
 dragDiv
@@ -3267,20 +3693,43 @@ dragWindow: aDictionary
 	self setAbsoluteWindowBounds! !
 
 ! WebUI methodsFor: 'opening' !
+enableClickCallbackString
+
+	| stream |
+
+	stream := WriteStream on: (String new: 40).
+	stream
+		nextPutAll: 'requestedFieldsCallback(''$', self appName, ''', ''';
+		nextPutAll: self appName;
+		nextPutAll: ''', ''';
+		nextPutAll: self appName;
+		nextPutAll: ''', ''bringToTop:'', [''pageX'', ''pageY''], event);'.
+
+	^stream contents ! !
+
+! WebUI methodsFor: 'opening' !
 enableDisableDivOn: anHTMLBuilder
 
 	anHTMLBuilder div: [:builder |
 		builder
 			attributeAt: 'id' put: (self idFor: 'enableDisable');
-			attributeAt: 'style' put: 'background-color: white;'.
+			attributeAt: 'style' put: self enableDisableStyle;
+			attributeAt: 'onmousedown' put: self enableClickCallbackString.
 
-		self titleBarDivOn: builder]
-! !
+		self titleBarDivOn: builder.
+		self renderBodyOn: builder]
+ ! !
+
+! WebUI methodsFor: 'opening' !
+enableDisableStyle
+
+	self extent isNil ifTrue: [^'background-color: white; position: absolute; left: 0px; top: 0px;'].
+	^'background-color: white; position: absolute; left: 0px; top: 0px; width: ', self extent x printString, 'px; height: ', self extent y printString, 'px;'! !
 
 ! WebUI methodsFor: 'opening' !
 fixedOffset
 
-	^5 @ -40! !
+	^5 @ 0! !
 
 ! WebUI methodsFor: 'opening' !
 html
@@ -3292,11 +3741,9 @@ html
 	^builder htmlString! !
 
 ! WebUI methodsFor: 'opening' !
-htmlForSpec: specName
+mainDivStyle
 
-	self log: 'htmlForSpec: ', specName.
-	^(self class perform: specName asSymbol)
-		copyReplaceAll: '$appName$' with: self appName! !
+	^'display: grid; grid-template-columns: 1fr 8px; background-color: transparent; width: 100%; height: 8px; position: absolute; left: 0; top: ', (self bounds corner y + 8) printString, 'px;'! !
 
 ! WebUI methodsFor: 'opening' !
 mouseMoveCallbackString
@@ -3333,21 +3780,29 @@ open
 
 	WebSession current openApplication: self.
 
+	self build.
 	self postBuild.
 	self addToInnerHTML: self html.
 
+	self withinWebUpdateDo: [
+		self setAbsoluteWindowBounds.
+		self resizeFrame].
+
+	self bindings do: [:widget | widget postOpen].
 	self postOpen.
 
-	self opened: true! !
+	self opened: true ! !
 
 ! WebUI methodsFor: 'opening' !
-open: specName
+preClose! !
 
-	WebSession current openApplication: self.
-	self postBuild.
-	self addToInnerHTML: (self htmlForSpec: specName).
+! WebUI methodsFor: 'opening' !
+renderBodyOn: anHTMLBuilder
 
-	self postOpen! !
+	self frame isNil ifTrue: [^self].
+	self frame renderOn: anHTMLBuilder.
+
+! !
 
 ! WebUI methodsFor: 'opening' !
 replaceAppNameIn: aString
@@ -3355,50 +3810,11 @@ replaceAppNameIn: aString
 	^aString copyReplaceAll: '$appName$' with: self appName! !
 
 ! WebUI methodsFor: 'opening' !
-resizeBottomRight: aDictionary
+resizeDivStyle
 
-	dragPoint := (aDictionary at: 'pageX') @ (aDictionary at: 'pageY') - self origin.
-	self addHTMLBeforeEndOf: self rootName to: self bottomRightResizeDiv! !
+	self extent isNil ifTrue: [^'display: grid; grid-template-columns: 1fr 8px; background-color: transparent; width: 100%; height: 8px; position: absolute;'].
 
-! WebUI methodsFor: 'opening' !
-resizeBottomRightCallback
-
-	| stream |
-
-	stream := WriteStream on: (String new: 40).
-	stream
-		nextPutAll: 'requestedFieldsCallback(''$', self appName, ''', ''';
-		nextPutAll: self appName;
-		nextPutAll: ''', ''';
-		nextPutAll: self appName;
-		nextPutAll: ''', ''resizeBottomRight:'', [''pageX'', ''pageY''], event);'.
-
-	^stream contents! !
-
-! WebUI methodsFor: 'opening' !
-resizeBottomRightWindow: aDictionary
-
-	| offset oldDragPoint |
-
-	dragPoint isNil ifTrue: [^self].
-
-	offset := (aDictionary at: 'pageX') @ (aDictionary at: 'pageY') - self origin.
-
-	self extent: offset + self fixedOffset.
-	self setAbsoluteWindowBounds.
-	self windowResized! !
-
-! WebUI methodsFor: 'opening' !
-resizeDivOn: anHTMLBuilder
-
-	anHTMLBuilder div: [:builder |
-		builder
-			attributeAt: 'id' put: (self idFor: 'resize');
-			attributeAt: 'style' put: 'display: grid; grid-template-columns: 1fr 8px; background-color: transparent; width: 100%; height: 8px;';
-			div: [:builder2 | builder2 attributeAt: 'style' put: 'background-color: transparent;'];
-			div: [:builder2 | builder2
-				attributeAt: 'style' put: 'background-color: black;';
-				attributeAt: 'onmousedown' put: self resizeBottomRightCallback]]! !
+	^'display: grid; grid-template-columns: 1fr 8px; background-color: transparent; width: 100%; height: 8px; position: absolute; left: 0; top: ', (self bounds corner y) printString, 'px;'! !
 
 ! WebUI methodsFor: 'opening' !
 setAbsoluteWindowBounds
@@ -3416,7 +3832,22 @@ setAbsoluteWindowBounds
 			to: 'position: absolute; top: ', self origin y printString, 'px; left: ', origin x printString, 'px; width: ', self extent x printString, 'px; height: ', self extent y printString,'px;']! !
 
 ! WebUI methodsFor: 'opening' !
+startDrag: aDictionary
+
+	self bringToTop.
+	dragPoint := (aDictionary at: 'pageX') @ (aDictionary at: 'pageY') - self origin.
+	self addHTMLBeforeEndOf: self rootName to: self dragDiv.
+
+	self withinWebUpdateDo: [
+		self bindings do: [:binding | binding update]].
+
+	WebSession current bringToTop: self
+  ! !
+
+! WebUI methodsFor: 'opening' !
 stopDrag: aDictionary
+
+	dragPoint isNil ifTrue: [^self].
 
 	dragPoint := nil.
 	self removeElement: (self idFor: 'windowDrag')! !
@@ -3424,7 +3855,7 @@ stopDrag: aDictionary
 ! WebUI methodsFor: 'opening' !
 title
 
-	^'Sample title'! !
+	^title ifNil: [self defaultTitle]! !
 
 ! WebUI methodsFor: 'opening' !
 titleBarDivOn: anHTMLBuilder
@@ -3450,9 +3881,9 @@ titleClickCallbackString
 		nextPutAll: self appName;
 		nextPutAll: ''', ''';
 		nextPutAll: self appName;
-		nextPutAll: ''', ''bringToTop:'', [''pageX'', ''pageY''], event);'.
+		nextPutAll: ''', ''startDrag:'', [''pageX'', ''pageY''], event);'.
 
-	^stream contents! !
+	^stream contents ! !
 
 ! WebUI methodsFor: 'opening' !
 titleDivOn: anHTMLBuilder
@@ -3463,8 +3894,707 @@ titleDivOn: anHTMLBuilder
 			"attributeAt: 'class' put: 'title';"
 			text: self title]! !
 
-! WebUI methodsFor: 'opening' !
+! WebUI methodsFor: 'resizing' !
+bottomLeftResizeDiv
+
+	^HTMLBuilder new
+		div: [:builder |
+			builder
+				attributeAt: 'id' put: (self idFor: 'windowDrag');
+				attributeAt: 'style' put: 'position: absolute; top: 0; bottom: 0; width: 3000px; height: 2000px; background-color: transparent;';
+				attributeAt: 'onmousemove' put: self bottomLeftResizeMouseMoveCallbackString;
+				attributeAt: 'onmouseup' put: self bottomRightResizeMouseUpCallbackString];
+		htmlString  ! !
+
+! WebUI methodsFor: 'resizing' !
+bottomLeftResizeMouseMoveCallbackString
+
+	| stream |
+
+	stream := WriteStream on: (String new: 40).
+	stream
+		nextPutAll: 'requestedFieldsCallback(''$', self appName, ''', ''';
+		nextPutAll: self appName;
+		nextPutAll: ''', ''';
+		nextPutAll: self appName;
+		nextPutAll: ''', ''resizeBottomLeftWindow:'', [''pageX'', ''pageY''], event);'.
+
+	^stream contents  ! !
+
+! WebUI methodsFor: 'resizing' !
+bottomLeftResizeStyle
+
+	| width height |
+	width := self extent isNil ifTrue: [10] ifFalse: [self extent x].
+	height := self extent isNil ifTrue: [10] ifFalse: [self extent y].
+
+	^'cursor: nesw-resize; position: absolute; border: none; left: 0px; width: 4px;top: ', (height - 4) printString,'px; height: 4px;'   ! !
+
+! WebUI methodsFor: 'resizing' !
+bottomResizeDiv
+
+	^HTMLBuilder new
+		div: [:builder |
+			builder
+				attributeAt: 'id' put: (self idFor: 'windowDrag');
+				attributeAt: 'style' put: 'position: absolute; top: 0; bottom: 0; width: 3000px; height: 2000px; background-color: transparent;';
+				attributeAt: 'onmousemove' put: self bottomResizeMouseMoveCallbackString;
+				attributeAt: 'onmouseup' put: self bottomRightResizeMouseUpCallbackString];
+		htmlString! !
+
+! WebUI methodsFor: 'resizing' !
+bottomResizeMouseMoveCallbackString
+
+	| stream |
+
+	stream := WriteStream on: (String new: 40).
+	stream
+		nextPutAll: 'requestedFieldsCallback(''$', self appName, ''', ''';
+		nextPutAll: self appName;
+		nextPutAll: ''', ''';
+		nextPutAll: self appName;
+		nextPutAll: ''', ''resizeBottomWindow:'', [''pageX'', ''pageY''], event);'.
+
+	^stream contents ! !
+
+! WebUI methodsFor: 'resizing' !
+bottomResizeStyle
+
+	| width height |
+	width := self extent isNil ifTrue: [10] ifFalse: [self extent x].
+	height := self extent isNil ifTrue: [10] ifFalse: [self extent y].
+
+	^'cursor: ns-resize; position: absolute; border: none; left: 2px; width: ', (width - 4) printString, 'px; top: ', (height - 2) printString, 'px; height: 2px;'  ! !
+
+! WebUI methodsFor: 'resizing' !
+bottomRightResizeDiv
+
+	^HTMLBuilder new
+		div: [:builder |
+			builder
+				attributeAt: 'id' put: (self idFor: 'windowDrag');
+				attributeAt: 'style' put: 'position: absolute; top: 0; bottom: 0; width: 3000px; height: 2000px; background-color: transparent;';
+				attributeAt: 'onmousemove' put: self bottomRightResizeMouseMoveCallbackString;
+				attributeAt: 'onmouseup' put: self bottomRightResizeMouseUpCallbackString];
+		htmlString  ! !
+
+! WebUI methodsFor: 'resizing' !
+bottomRightResizeMouseMoveCallbackString
+
+	| stream |
+
+	stream := WriteStream on: (String new: 40).
+	stream
+		nextPutAll: 'requestedFieldsCallback(''$', self appName, ''', ''';
+		nextPutAll: self appName;
+		nextPutAll: ''', ''';
+		nextPutAll: self appName;
+		nextPutAll: ''', ''resizeBottomRightWindow:'', [''pageX'', ''pageY''], event);'.
+
+	^stream contents  ! !
+
+! WebUI methodsFor: 'resizing' !
+bottomRightResizeMouseUpCallbackString
+
+	| stream |
+
+	stream := WriteStream on: (String new: 40).
+	stream
+		nextPutAll: 'requestedFieldsCallback(''$', self appName, ''', ''';
+		nextPutAll: self appName;
+		nextPutAll: ''', ''';
+		nextPutAll: self appName;
+		nextPutAll: ''', ''stopDrag:'', [''pageX'', ''pageY''], event);'.
+
+	^stream contents! !
+
+! WebUI methodsFor: 'resizing' !
+bottomRightResizeStyle
+
+	| width height |
+	width := self extent isNil ifTrue: [10] ifFalse: [self extent x].
+	height := self extent isNil ifTrue: [10] ifFalse: [self extent y].
+
+	^'cursor: nwse-resize; position: absolute; border: none; left: ',
+					(width - 4) printString, 'px; width: 4px;top: ', (height - 4) printString,'px; height: 4px;'   ! !
+
+! WebUI methodsFor: 'resizing' !
+leftResizeDiv
+
+	^HTMLBuilder new
+		div: [:builder |
+			builder
+				attributeAt: 'id' put: (self idFor: 'windowDrag');
+				attributeAt: 'style' put: 'position: absolute; top: 0; bottom: 0; width: 3000px; height: 2000px; background-color: transparent;';
+				attributeAt: 'onmousemove' put: self leftResizeMouseMoveCallbackString;
+				attributeAt: 'onmouseup' put: self bottomRightResizeMouseUpCallbackString];
+		htmlString  ! !
+
+! WebUI methodsFor: 'resizing' !
+leftResizeMouseMoveCallbackString
+
+	| stream |
+
+	stream := WriteStream on: (String new: 40).
+	stream
+		nextPutAll: 'requestedFieldsCallback(''$', self appName, ''', ''';
+		nextPutAll: self appName;
+		nextPutAll: ''', ''';
+		nextPutAll: self appName;
+		nextPutAll: ''', ''resizeLeftWindow:'', [''pageX'', ''pageY''], event);'.
+
+	^stream contents  ! !
+
+! WebUI methodsFor: 'resizing' !
+leftResizeStyle
+
+	| height |
+	height := self extent isNil ifTrue: [10] ifFalse: [self extent y].
+
+	^'cursor: ew-resize; position: absolute; border: none; left: 0px; width: 2px; top: 2px; height: ', (height - 4) printString, 'px;'  ! !
+
+! WebUI methodsFor: 'resizing' !
+minimumSize
+
+	^400 @ 200! !
+
+! WebUI methodsFor: 'resizing' !
+resizeBottom: aDictionary
+
+	dragPoint := (aDictionary at: 'pageX') @ (aDictionary at: 'pageY') - self origin.
+	self addHTMLBeforeEndOf: self rootName to: self bottomResizeDiv ! !
+
+! WebUI methodsFor: 'resizing' !
+resizeBottomCallback
+
+	| stream |
+
+	stream := WriteStream on: (String new: 40).
+	stream
+		nextPutAll: 'requestedFieldsCallback(''$', self appName, ''', ''';
+		nextPutAll: self appName;
+		nextPutAll: ''', ''';
+		nextPutAll: self appName;
+		nextPutAll: ''', ''resizeBottom:'', [''pageX'', ''pageY''], event);'.
+
+	^stream contents ! !
+
+! WebUI methodsFor: 'resizing' !
+resizeBottomLeft: aDictionary
+
+	dragPoint := (aDictionary at: 'pageX') @ (aDictionary at: 'pageY') - self origin.
+	self addHTMLBeforeEndOf: self rootName to: self bottomLeftResizeDiv  ! !
+
+! WebUI methodsFor: 'resizing' !
+resizeBottomLeftCallback
+
+	| stream |
+
+	stream := WriteStream on: (String new: 40).
+	stream
+		nextPutAll: 'requestedFieldsCallback(''$', self appName, ''', ''';
+		nextPutAll: self appName;
+		nextPutAll: ''', ''';
+		nextPutAll: self appName;
+		nextPutAll: ''', ''resizeBottomLeft:'', [''pageX'', ''pageY''], event);'.
+
+	^stream contents  ! !
+
+! WebUI methodsFor: 'resizing' !
+resizeBottomLeftWindow: aDictionary
+
+	| offset oldDragPoint right newExtent left |
+
+	dragPoint isNil ifTrue: [^self].
+
+	right := self origin x + self extent x.
+	newExtent := (self minimumSize x max: right - (aDictionary at: 'pageX')) @ ((aDictionary at: 'pageY') - self origin y).
+	left := right - newExtent x.
+
+	self extent: newExtent.
+	self origin:  left @ self origin y.
+
+	self resizeFrame.
+	self windowResized   ! !
+
+! WebUI methodsFor: 'resizing' !
+resizeBottomRight: aDictionary
+
+	dragPoint := (aDictionary at: 'pageX') @ (aDictionary at: 'pageY') - self origin.
+	self addHTMLBeforeEndOf: self rootName to: self bottomRightResizeDiv  ! !
+
+! WebUI methodsFor: 'resizing' !
+resizeBottomRightCallback
+
+	| stream |
+
+	stream := WriteStream on: (String new: 40).
+	stream
+		nextPutAll: 'requestedFieldsCallback(''$', self appName, ''', ''';
+		nextPutAll: self appName;
+		nextPutAll: ''', ''';
+		nextPutAll: self appName;
+		nextPutAll: ''', ''resizeBottomRight:'', [''pageX'', ''pageY''], event);'.
+
+	^stream contents  ! !
+
+! WebUI methodsFor: 'resizing' !
+resizeBottomRightWindow: aDictionary
+
+	| offset oldDragPoint |
+
+	dragPoint isNil ifTrue: [^self].
+
+	offset := (aDictionary at: 'pageX')  - self origin x @ ((aDictionary at: 'pageY') - self origin y).
+	self extent: (self minimumSize max: offset).
+
+	self resizeFrame.
+	self windowResized  ! !
+
+! WebUI methodsFor: 'resizing' !
+resizeBottomWindow: aDictionary
+
+	| offset oldDragPoint |
+
+	dragPoint isNil ifTrue: [^self].
+
+	offset := self extent x @ ((aDictionary at: 'pageY')  - self origin y).
+	self extent: (self minimumSize max: offset).
+
+	self resizeFrame.
+	self windowResized ! !
+
+! WebUI methodsFor: 'resizing' !
+resizeDivOn: anHTMLBuilder
+
+	| width height |
+	width := self extent isNil ifTrue: [10] ifFalse: [self extent x].
+	height := self extent isNil ifTrue: [10] ifFalse: [self extent y].
+
+	anHTMLBuilder
+		div: [:b |
+			b attributeAt: 'id' put: (self idFor: 'resizeDiv');
+			div: [:builder |
+				builder
+					attributeAt: 'id' put: (self idFor: 'rightResize');
+					attributeAt: 'style' put: self rightResizeStyle;
+					attributeAt: 'onmousedown' put: self resizeRightCallback];
+
+			div: [:builder |
+				builder
+					attributeAt: 'id' put: (self idFor: 'leftResize');
+					attributeAt: 'style' put: self leftResizeStyle;
+					attributeAt: 'onmousedown' put: self resizeLeftCallback];
+			div: [:builder |
+				builder
+					attributeAt: 'id' put: (self idFor: 'topResize');
+					attributeAt: 'style' put: self topResizeStyle;
+					attributeAt: 'onmousedown' put: self resizeTopCallback];
+			div: [:builder |
+				builder
+					attributeAt: 'id' put: (self idFor: 'bottomResize');
+					attributeAt: 'style' put: self bottomResizeStyle;
+					attributeAt: 'onmousedown' put: self resizeBottomCallback];
+			div: [:builder |
+				builder
+					attributeAt: 'id' put: (self idFor: 'bottomRightResize');
+					attributeAt: 'style' put: self bottomRightResizeStyle;
+					attributeAt: 'onmousedown' put: self resizeBottomRightCallback];
+			div: [:builder |
+				builder
+					attributeAt: 'id' put: (self idFor: 'bottomLeftResize');
+					attributeAt: 'style' put: self bottomLeftResizeStyle;
+					attributeAt: 'onmousedown' put: self resizeBottomLeftCallback];
+			div: [:builder |
+				builder
+					attributeAt: 'id' put: (self idFor: 'topLeftResize');
+					attributeAt: 'style' put: self topLeftResizeStyle;
+					attributeAt: 'onmousedown' put: self resizeTopLeftCallback];
+			div: [:builder |
+				builder
+					attributeAt: 'id' put: (self idFor: 'topRightResize');
+					attributeAt: 'style' put: self topRightResizeStyle;
+					attributeAt: 'onmousedown' put: self resizeTopRightCallback] ]
+! !
+
+! WebUI methodsFor: 'resizing' !
+resizeFrame
+
+	self frame isNil ifTrue: [^self].
+	self
+		setAbsoluteWindowBounds;
+		setAttribute: 'style' of: (self idFor: 'enableDisable') to: self enableDisableStyle;
+		setAttribute: 'style' of: (self idFor: 'rightResize') to: self rightResizeStyle;
+		setAttribute: 'style' of: (self idFor: 'leftResize') to: self leftResizeStyle;
+		setAttribute: 'style' of: (self idFor: 'topResize') to: self topResizeStyle;
+		setAttribute: 'style' of: (self idFor: 'bottomResize') to: self bottomResizeStyle;
+		setAttribute: 'style' of: (self idFor: 'bottomRightResize') to: self bottomRightResizeStyle;
+		setAttribute: 'style' of: (self idFor: 'bottomLeftResize') to: self bottomLeftResizeStyle;
+		setAttribute: 'style' of: (self idFor: 'topLeftResize') to: self topLeftResizeStyle;
+		setAttribute: 'style' of: (self idFor: 'topRightResize') to: self topRightResizeStyle.
+
+	self frame resize: self within: self bounds
+
+
+    ! !
+
+! WebUI methodsFor: 'resizing' !
+resizeLeft: aDictionary
+
+	dragPoint := (aDictionary at: 'pageX') @ (aDictionary at: 'pageY') - self origin.
+	self addHTMLBeforeEndOf: self rootName to: self leftResizeDiv  ! !
+
+! WebUI methodsFor: 'resizing' !
+resizeLeftCallback
+
+	| stream |
+
+	stream := WriteStream on: (String new: 40).
+	stream
+		nextPutAll: 'requestedFieldsCallback(''$', self appName, ''', ''';
+		nextPutAll: self appName;
+		nextPutAll: ''', ''';
+		nextPutAll: self appName;
+		nextPutAll: ''', ''resizeLeft:'', [''pageX'', ''pageY''], event);'.
+
+	^stream contents  ! !
+
+! WebUI methodsFor: 'resizing' !
+resizeLeftWindow: aDictionary
+
+	| offset oldDragPoint right newExtent left |
+
+	dragPoint isNil ifTrue: [^self].
+
+	right := self origin x + self extent x.
+	newExtent := (self minimumSize x max: right - (aDictionary at: 'pageX')) @ self extent y.
+	left := right - newExtent x.
+
+	self extent: newExtent.
+	self origin:  left @ self origin y.
+
+	self resizeFrame.
+	self windowResized  ! !
+
+! WebUI methodsFor: 'resizing' !
+resizeRight: aDictionary
+
+	dragPoint := (aDictionary at: 'pageX') @ (aDictionary at: 'pageY') - self origin.
+	self addHTMLBeforeEndOf: self rootName to: self rightResizeDiv ! !
+
+! WebUI methodsFor: 'resizing' !
+resizeRightCallback
+
+	| stream |
+
+	stream := WriteStream on: (String new: 40).
+	stream
+		nextPutAll: 'requestedFieldsCallback(''$', self appName, ''', ''';
+		nextPutAll: self appName;
+		nextPutAll: ''', ''';
+		nextPutAll: self appName;
+		nextPutAll: ''', ''resizeRight:'', [''pageX'', ''pageY''], event);'.
+
+	^stream contents ! !
+
+! WebUI methodsFor: 'resizing' !
+resizeRightWindow: aDictionary
+
+	| offset oldDragPoint |
+
+	dragPoint isNil ifTrue: [^self].
+
+	offset := (aDictionary at: 'pageX')  - self origin x @ self extent y.
+	self extent: (self minimumSize max: offset).
+
+	self resizeFrame.
+	self windowResized ! !
+
+! WebUI methodsFor: 'resizing' !
+resizeTop: aDictionary
+
+	dragPoint := (aDictionary at: 'pageX') @ (aDictionary at: 'pageY') - self origin.
+	self addHTMLBeforeEndOf: self rootName to: self topResizeDiv   ! !
+
+! WebUI methodsFor: 'resizing' !
+resizeTopCallback
+
+	| stream |
+
+	stream := WriteStream on: (String new: 40).
+	stream
+		nextPutAll: 'requestedFieldsCallback(''$', self appName, ''', ''';
+		nextPutAll: self appName;
+		nextPutAll: ''', ''';
+		nextPutAll: self appName;
+		nextPutAll: ''', ''resizeTop:'', [''pageX'', ''pageY''], event);'.
+
+	^stream contents   ! !
+
+! WebUI methodsFor: 'resizing' !
+resizeTopLeft: aDictionary
+
+	dragPoint := (aDictionary at: 'pageX') @ (aDictionary at: 'pageY') - self origin.
+	self addHTMLBeforeEndOf: self rootName to: self topLeftResizeDiv   ! !
+
+! WebUI methodsFor: 'resizing' !
+resizeTopLeftCallback
+
+	| stream |
+
+	stream := WriteStream on: (String new: 40).
+	stream
+		nextPutAll: 'requestedFieldsCallback(''$', self appName, ''', ''';
+		nextPutAll: self appName;
+		nextPutAll: ''', ''';
+		nextPutAll: self appName;
+		nextPutAll: ''', ''resizeTopLeft:'', [''pageX'', ''pageY''], event);'.
+
+	^stream contents   ! !
+
+! WebUI methodsFor: 'resizing' !
+resizeTopLeftWindow: aDictionary
+
+	| offset oldDragPoint right newExtent left bottom top |
+
+	dragPoint isNil ifTrue: [^self].
+
+	right := self origin x + self extent x.
+	bottom := self origin y + self extent y.
+
+	newExtent := (self minimumSize x max: right - (aDictionary at: 'pageX')) @ (self minimumSize y max: bottom - (aDictionary at: 'pageY')).
+	left := right - newExtent x.
+	top := bottom - newExtent y.
+
+	self extent: newExtent.
+	self origin:  left @ top.
+
+	self resizeFrame.
+	self windowResized    ! !
+
+! WebUI methodsFor: 'resizing' !
+resizeTopRight: aDictionary
+
+	dragPoint := (aDictionary at: 'pageX') @ (aDictionary at: 'pageY') - self origin.
+	self addHTMLBeforeEndOf: self rootName to: self topRightResizeDiv    ! !
+
+! WebUI methodsFor: 'resizing' !
+resizeTopRightCallback
+
+	| stream |
+
+	stream := WriteStream on: (String new: 40).
+	stream
+		nextPutAll: 'requestedFieldsCallback(''$', self appName, ''', ''';
+		nextPutAll: self appName;
+		nextPutAll: ''', ''';
+		nextPutAll: self appName;
+		nextPutAll: ''', ''resizeTopRight:'', [''pageX'', ''pageY''], event);'.
+
+	^stream contents    ! !
+
+! WebUI methodsFor: 'resizing' !
+resizeTopRightWindow: aDictionary
+
+	| offset oldDragPoint right newExtent left bottom top |
+
+	dragPoint isNil ifTrue: [^self].
+
+	bottom := self origin y + self extent y.
+
+	newExtent := (self minimumSize x max: (aDictionary at: 'pageX') - self origin x) @ (self minimumSize y max: bottom - (aDictionary at: 'pageY')).
+	top := bottom - newExtent y.
+
+	self extent: newExtent.
+	self origin: origin x @ top.
+
+	self resizeFrame.
+	self windowResized     ! !
+
+! WebUI methodsFor: 'resizing' !
+resizeTopWindow: aDictionary
+
+	| offset oldDragPoint top newExtent bottom |
+
+	dragPoint isNil ifTrue: [^self].
+
+	bottom := self origin y + self extent y.
+	newExtent := self extent x @ (self minimumSize y max: bottom - (aDictionary at: 'pageY')).
+	top := bottom - newExtent y.
+
+	self extent: newExtent.
+	self origin:  self origin x @ top.
+
+	self resizeFrame.
+	self windowResized   ! !
+
+! WebUI methodsFor: 'resizing' !
+rightResizeDiv
+
+	^HTMLBuilder new
+		div: [:builder |
+			builder
+				attributeAt: 'id' put: (self idFor: 'windowDrag');
+				attributeAt: 'style' put: 'position: absolute; top: 0; bottom: 0; width: 3000px; height: 2000px; background-color: transparent;';
+				attributeAt: 'onmousemove' put: self rightResizeMouseMoveCallbackString;
+				attributeAt: 'onmouseup' put: self bottomRightResizeMouseUpCallbackString];
+		htmlString ! !
+
+! WebUI methodsFor: 'resizing' !
+rightResizeMouseMoveCallbackString
+
+	| stream |
+
+	stream := WriteStream on: (String new: 40).
+	stream
+		nextPutAll: 'requestedFieldsCallback(''$', self appName, ''', ''';
+		nextPutAll: self appName;
+		nextPutAll: ''', ''';
+		nextPutAll: self appName;
+		nextPutAll: ''', ''resizeRightWindow:'', [''pageX'', ''pageY''], event);'.
+
+	^stream contents ! !
+
+! WebUI methodsFor: 'resizing' !
+rightResizeMouseUpCallbackString
+
+	| stream |
+
+	stream := WriteStream on: (String new: 40).
+	stream
+		nextPutAll: 'requestedFieldsCallback(''$', self appName, ''', ''';
+		nextPutAll: self appName;
+		nextPutAll: ''', ''';
+		nextPutAll: self appName;
+		nextPutAll: ''', ''stopDrag:'', [''pageX'', ''pageY''], event);'.
+
+	^stream contents ! !
+
+! WebUI methodsFor: 'resizing' !
+rightResizeStyle
+
+	| width height |
+	width := self extent isNil ifTrue: [10] ifFalse: [self extent x].
+	height := self extent isNil ifTrue: [10] ifFalse: [self extent y].
+
+	^'cursor: ew-resize; position: absolute; border: none; left: ',
+					(width - 2) printString, 'px; width: 2px;top: 2px; height: ',
+					(height - 4) printString, 'px;'  ! !
+
+! WebUI methodsFor: 'resizing' !
+topLeftResizeDiv
+
+	^HTMLBuilder new
+		div: [:builder |
+			builder
+				attributeAt: 'id' put: (self idFor: 'windowDrag');
+				attributeAt: 'style' put: 'position: absolute; top: 0; bottom: 0; width: 3000px; height: 2000px; background-color: transparent;';
+				attributeAt: 'onmousemove' put: self topLeftResizeMouseMoveCallbackString;
+				attributeAt: 'onmouseup' put: self bottomRightResizeMouseUpCallbackString];
+		htmlString   ! !
+
+! WebUI methodsFor: 'resizing' !
+topLeftResizeMouseMoveCallbackString
+
+	| stream |
+
+	stream := WriteStream on: (String new: 40).
+	stream
+		nextPutAll: 'requestedFieldsCallback(''$', self appName, ''', ''';
+		nextPutAll: self appName;
+		nextPutAll: ''', ''';
+		nextPutAll: self appName;
+		nextPutAll: ''', ''resizeTopLeftWindow:'', [''pageX'', ''pageY''], event);'.
+
+	^stream contents   ! !
+
+! WebUI methodsFor: 'resizing' !
+topLeftResizeStyle
+
+	^'cursor: nwse-resize; position: absolute; border: none; left: 0px; width: 4px;top: 0px; height: 4px;' ! !
+
+! WebUI methodsFor: 'resizing' !
+topResizeDiv
+
+	^HTMLBuilder new
+		div: [:builder |
+			builder
+				attributeAt: 'id' put: (self idFor: 'windowDrag');
+				attributeAt: 'style' put: 'position: absolute; top: 0; bottom: 0; width: 3000px; height: 2000px; background-color: transparent;';
+				attributeAt: 'onmousemove' put: self topResizeMouseMoveCallbackString;
+				attributeAt: 'onmouseup' put: self bottomRightResizeMouseUpCallbackString];
+		htmlString   ! !
+
+! WebUI methodsFor: 'resizing' !
+topResizeMouseMoveCallbackString
+
+	| stream |
+
+	stream := WriteStream on: (String new: 40).
+	stream
+		nextPutAll: 'requestedFieldsCallback(''$', self appName, ''', ''';
+		nextPutAll: self appName;
+		nextPutAll: ''', ''';
+		nextPutAll: self appName;
+		nextPutAll: ''', ''resizeTopWindow:'', [''pageX'', ''pageY''], event);'.
+
+	^stream contents   ! !
+
+! WebUI methodsFor: 'resizing' !
+topResizeStyle
+
+	| width |
+	width := self extent isNil ifTrue: [10] ifFalse: [self extent x].
+
+	^'cursor: ns-resize; position: absolute; border: none; left: 2px; width: ', (width - 4) printString, 'px; top: 0px; height: 2px;'  ! !
+
+! WebUI methodsFor: 'resizing' !
+topRightResizeDiv
+
+	^HTMLBuilder new
+		div: [:builder |
+			builder
+				attributeAt: 'id' put: (self idFor: 'windowDrag');
+				attributeAt: 'style' put: 'position: absolute; top: 0; bottom: 0; width: 3000px; height: 2000px; background-color: transparent;';
+				attributeAt: 'onmousemove' put: self topRightResizeMouseMoveCallbackString;
+				attributeAt: 'onmouseup' put: self bottomRightResizeMouseUpCallbackString];
+		htmlString    ! !
+
+! WebUI methodsFor: 'resizing' !
+topRightResizeMouseMoveCallbackString
+
+	| stream |
+
+	stream := WriteStream on: (String new: 40).
+	stream
+		nextPutAll: 'requestedFieldsCallback(''$', self appName, ''', ''';
+		nextPutAll: self appName;
+		nextPutAll: ''', ''';
+		nextPutAll: self appName;
+		nextPutAll: ''', ''resizeTopRightWindow:'', [''pageX'', ''pageY''], event);'.
+
+	^stream contents    ! !
+
+! WebUI methodsFor: 'resizing' !
+topRightResizeStyle
+
+	| width |
+	width := self extent isNil ifTrue: [10] ifFalse: [self extent x].
+
+	^'cursor: nesw-resize; position: absolute; border: none; left: ', (width - 4) printString, 'px; width: 4px; top: 0px; height: 4px;'    ! !
+
+! WebUI methodsFor: 'resizing' !
 windowResized! !
+
+! WebUI methodsFor: 'running' !
+withUIScreen: aScreen do: aBlock
+
+	| oldScreen |
+	oldScreen := CurrentScreen.
+	CurrentScreen := aScreen.
+	aBlock ensure: [
+		CurrentScreen := oldScreen]
+ ! !
 
 ! WebUI methodsFor: 'testing' !
 disable
@@ -3473,7 +4603,7 @@ disable
 	self
 		setAttribute: 'style'
 		of: (self idFor: 'enableDisable')
-		to: 'background-color: #c0c0c0; color: #808080; pointer-events: none;'! !
+		to: self enableDisableStyle, 'background-color: #c0c0c0; color: #808080; pointer-events: none;'! !
 
 ! WebUI methodsFor: 'testing' !
 disableWhile: aBlock
@@ -3486,7 +4616,7 @@ disableWhile: aBlock
 enable
 
 	self flags remove: #disabled ifAbsent: [].
-	self setAttribute: 'style' of: (self idFor: 'enableDisable') to: 'background-color: white;'! !
+	self setAttribute: 'style' of: (self idFor: 'enableDisable') to: self enableDisableStyle! !
 
 ! WebUI methodsFor: 'testing' !
 isDisabled
@@ -3497,6 +4627,11 @@ isDisabled
 isEnabled
 
 	^self isDisabled not! !
+
+! WebUI methodsFor: 'testing' !
+isOpen
+
+	^WebSession current applications includes: self! !
 
 ! WebUI methodsFor: 'testing' !
 isUI
@@ -3519,6 +4654,11 @@ write: aString inRichTextArea: idString position: aNumber
 write: aString inTextArea: idString position: aNumber
 
 	self runJavaScript: 'insertText("' , idString, '", "', (self javascriptQuote: aString), '",',  aNumber printString, ');'! !
+
+! WebUI methodsFor: 'updating' !
+updateTitle
+
+	self setInnerHTMLOf: (self idFor: 'dragbar') to: self title! !
 
 ! WebUI methodsFor: 'utility' !
 errorMessage: aString
@@ -3626,6 +4766,14 @@ message: aString
 	message := aString ! !
 
 ! ListChoiceBox methodsFor: 'accessing' !
+messageSizeWith: aDictionary
+
+	messageSize := aDictionary at: 'width'.
+	self extent: self windowWidth @ self extent y.
+	(self frame childNamed: (self idFor: 'centeringDiv')) horizontalChildLayout layoutString: self messageHorizontalLayoutString.
+	self resizeFrame! !
+
+! ListChoiceBox methodsFor: 'accessing' !
 values
 
 	^values ! !
@@ -3635,70 +4783,105 @@ values: aCollection
 
 	values := aCollection ! !
 
-! ListChoiceBox methodsFor: 'updating' !
-doCancel
+! ListChoiceBox methodsFor: 'building' !
+buildOn: aWindowBuilder
 
+	aWindowBuilder
+		verticalLayout: '30px 1fr 30px' id: 'messageBoxDiv';
+			horizontalLayout: self messageHorizontalLayoutString id: 'centeringDiv';
+				divId: 'centerLeft';
+				end;
+				textWidget: 'messageId';
+					text: self message;
+				end;
+				divId: 'centerRight';
+				end;
+			end;
+			listWidget: #choicesList;
+			end;
+			horizontalLayout: '5sp 1fr 60px 60px 1fr' id: 'toolBar';
+				divId: 'leftWhitespace';
+				end;
+				pushButton: 'okButton';
+					label: 'Ok';
+					action: [self okAction];
+				end;
+				pushButton: 'cancelButton';
+					label: 'Cancel';
+					action: [self cancelAction];
+				end;
+				divId: 'rightWhitespace';
+				end;
+			end;
+		end! !
+
+! ListChoiceBox methodsFor: 'building' !
+computeMessageSize
+
+	messageSize isNil ifTrue: [^100].
+	^messageSize + 10! !
+
+! ListChoiceBox methodsFor: 'building' !
+defaultWindowExtent
+
+	^300 @ 300! !
+
+! ListChoiceBox methodsFor: 'building' !
+messageHorizontalLayoutString
+
+	^'1fr ', self computeMessageSize printString,'px 1fr'! !
+
+! ListChoiceBox methodsFor: 'building' !
+postBuild
+
+	self runJavaScript: 'measureTextOnCanvas (`', self message, '`, `', self font, '`, `$', self appName, '` , `', #messageSizeWith: , '`);'
+ ! !
+
+! ListChoiceBox methodsFor: 'building' !
+windowWidth
+
+	^(self computeMessageSize rounded + 40) max: 200! !
+
+! ListChoiceBox methodsFor: 'updating' !
+cancelAction
+
+	self answerBlock value: nil.
 	self close
  ! !
 
 ! ListChoiceBox methodsFor: 'updating' !
-doOk: anIntegerString
+defaultTitle
+
+	^'Choice'! !
+
+! ListChoiceBox methodsFor: 'updating' !
+okAction
 
 	| index |
 
-	index := Integer readFrom: anIntegerString readStream.
+	index := (self bindingAt: #choicesList) selectionIndex.
 
 	self close.
 
 	(index >= 0 and: [self answerBlock notNil])
-		ifTrue: [self answerBlock value: (self values at: index + 1)].
+		ifTrue: [self answerBlock value: (self values at: index)].
 
  ! !
 
 ! ListChoiceBox methodsFor: 'updating' !
-listChoiceBoxHTML
-
-	| htmlStream |
-
-	htmlStream := WriteStream on: (String new: 100).
-	htmlStream
-		nextPutAll: '<div>', self message, '</div>';
-		nextPutAll: '<div id="$appName$-listdiv">';
-		nextPutAll: '<select id=''$appName$-list'' size=12;>'.
-
-	choices keysAndValuesDo: [:key :choice |
-		htmlStream nextPutAll: '<option>', choice, '</option>'].
-
-	htmlStream
-		nextPutAll: '</select>';
-		nextPutAll: '<div style="display: flex;">';
-		nextPutAll: '<div style="border: 1px solid black; padding: 5px; margin: 2px;" onclick="simTalkCallback1(''$$appName$'', ''doOk:'', document.getElementById(''$appName$-list'').selectedIndex);">Ok</div>';
-		nextPutAll: '<div style="border: 1px solid black; padding: 5px; margin: 2px;" onclick="simTalkCallback0(''$$appName$'', ''doCancel'');">Cancel</div>';
-		nextPutAll: '</div>'.
-
-	^htmlStream contents ! !
-
-! ListChoiceBox methodsFor: 'updating' !
 postOpen
 
-	super postOpen.
-	self setAbsoluteWindowBounds.
-	self withinWebUpdateDo: [self update] ! !
+	self update! !
 
 ! ListChoiceBox methodsFor: 'updating' !
 update
 
-	self addHTMLBeforeEndOf: (self idFor: 'enableDisable') to: self listChoiceBoxHTML ! !
+	(self bindingAt: #choicesList) list: self choices! !
 
-! ListChoiceBox class methodsFor: 'ui specs' !
-uiSpec
+! MessageBox methodsFor: 'accessing' !
+defaultTitle
 
-	^'<div id="$appName$">
-	<div id="$appName$-ListChoiceToolbar" style="display: flex">
-		<div id="$appName$-Title" class="title">Choice</div>
-	</div>
-</div>
-' ! !
+	^'Message'! !
 
 ! MessageBox methodsFor: 'accessing' !
 message
@@ -3718,19 +4901,76 @@ severity
 ! MessageBox methodsFor: 'accessing' !
 severity: aString
 
-	severity := aString! !
+	severity := aString.
+	self title: aString capitalized! !
 
-! MessageBox methodsFor: 'accessing' !
-title
+! MessageBox methodsFor: 'building' !
+buildOn: aWindowBuilder
 
-	^(self severity ifNil: ['Message']) capitalized! !
+	aWindowBuilder
+		verticalLayout: '1fr 30px 30px 1fr' id: 'messageBoxDiv';
+			divId: 'topWhitespace';
+			end;
+			horizontalLayout: self messageHorizontalLayoutString id: 'centeringDiv';
+				divId: 'centerLeft';
+				end;
+				textWidget: 'messageId';
+					text: self messageString;
+				end;
+				divId: 'centerRight';
+				end;
+			end;
+			horizontalLayout: '1fr 100px 1fr' id: 'toolBar';
+				divId: 'leftWhitespace';
+				end;
+				pushButton: 'okButton';
+					label: 'Ok';
+					action: [self close];
+				end;
+				divId: 'rightWhitespace';
+				end;
+			end;
+			divId: 'bottomWhitespace';
+			end;
+		end
+
+! !
+
+! MessageBox methodsFor: 'building' !
+computeMessageSize
+
+	messageSize isNil ifTrue: [^100].
+	^messageSize + 10! !
+
+! MessageBox methodsFor: 'building' !
+defaultWindowExtent
+
+	^300 @ 100! !
+
+! MessageBox methodsFor: 'building' !
+messageHorizontalLayoutString
+
+	^'1fr ', self computeMessageSize printString,'px 1fr'
+! !
 
 ! MessageBox methodsFor: 'opening' !
-postOpen
+messageSizeWith: aDictionary
 
-	super postOpen.
-	self setAbsoluteWindowBounds.
-	self withinWebUpdateDo: [self update] ! !
+	messageSize := aDictionary at: 'width'.
+	self extent: self windowWidth @ self extent y.
+	(self frame childNamed: (self idFor: 'centeringDiv')) horizontalChildLayout layoutString: self messageHorizontalLayoutString.
+	self resizeFrame! !
+
+! MessageBox methodsFor: 'opening' !
+postBuild
+
+	self runJavaScript: 'measureTextOnCanvas (`', self message, '`, `', self font, '`, `$', self appName, '` , `', #messageSizeWith:, '`);'
+ ! !
+
+! MessageBox methodsFor: 'opening' !
+windowWidth
+
+	^(self computeMessageSize rounded + 40) max: 200! !
 
 ! MessageBox methodsFor: 'updating' !
 messageString
@@ -3742,11 +4982,6 @@ styleForSeverity
 	self severity = #warning ifTrue: [^'background-color: yellow;'].
 	self severity = #info ifTrue: [^'background-color: lightblue;'].
 	^'background-color: white;'! !
-
-! MessageBox methodsFor: 'updating' !
-update
-
-	self addHTMLBeforeEndOf: (self idFor: 'enableDisable') to: self messageString! !
 
 ! MessageBox class methodsFor: 'opening' !
 errorMessage: aString
@@ -3797,7 +5032,6 @@ message: aString severity: aSymbol at: aPoint
 
 	self new
 		origin: aPoint;
-		extent: nil;
 		severity: aSymbol;
 		message: aString;
 		open
@@ -3848,6 +5082,14 @@ message: aString
 	message := aString! !
 
 ! MultipleChoiceBox methodsFor: 'accessing' !
+messageSizeWith: aDictionary
+
+	messageSize := aDictionary at: 'width'.
+	self extent: self windowWidth @ self extent y.
+	(self frame childNamed: (self idFor: 'centeringDiv')) horizontalChildLayout layoutString: self messageHorizontalLayoutString.
+	self resizeFrame! !
+
+! MultipleChoiceBox methodsFor: 'accessing' !
 values
 
 	^values! !
@@ -3857,24 +5099,81 @@ values: aCollection
 
 	values := aCollection! !
 
-! MultipleChoiceBox methodsFor: 'opening' !
-choiceBoxHTML
+! MultipleChoiceBox methodsFor: 'building' !
+buildOn: aWindowBuilder
+
+	aWindowBuilder
+		verticalLayout: '35px 35px 1fr' id: 'messageChoiceDiv';
+			horizontalLayout: self messageHorizontalLayoutString id: 'centeringDiv';
+				divId: 'centerLeft';
+				end;
+				textWidget: 'message';
+					text: message;
+				end;
+				divId: 'centerRight';
+				end;
+			end;
+			horizontalLayout: self toolBarHorizontalString id: 'toolBar';
+				divId: 'buttonLeftWhitespace';
+				end.
+
+	self choices with: self values do: [:choice :value |
+			aWindowBuilder
+ 				pushButton: choice;
+					label: choice;
+					action: [value value. self close];
+				end].
+
+	aWindowBuilder
+				divId: 'buttonLeftWhitespace';
+				end;
+			end;
+			divId: 'bottomWhitespace';
+			end;
+		end ! !
+
+! MultipleChoiceBox methodsFor: 'building' !
+computeMessageSize
+
+	messageSize isNil ifTrue: [^100].
+	^messageSize + 10! !
+
+! MultipleChoiceBox methodsFor: 'building' !
+defaultWindowExtent
+
+	^300 @ 130 ! !
+
+! MultipleChoiceBox methodsFor: 'building' !
+messageHorizontalLayoutString
+
+	^'1fr ', self computeMessageSize printString,'px 1fr'! !
+
+! MultipleChoiceBox methodsFor: 'building' !
+postBuild
+
+	self runJavaScript: 'measureTextOnCanvas (`', self message, '`, `', self font, '`, `$', self appName, '` , `', #messageSizeWith: , '`);'
+ ! !
+
+! MultipleChoiceBox methodsFor: 'building' !
+toolBarHorizontalString
 
 	| stream |
-
 	stream := WriteStream on: (String new: 100).
-	stream
-		nextPutAll: '<div style="background-color: white; border: 1px solid black; padding: 5px;">';
-		nextPutAll: '<div>', self message, '</div>';
-		nextPutAll: '<div id="$appName$-', self appName, '" style="display: flex;">'.
-
-	choices keysAndValuesDo: [:key :choice |
-			stream nextPutAll: '<div style="border: 1px solid black; padding: 5px; margin: 2px;" onclick="simTalkCallback1(''$$appName$'', ''doChoice:'', ', key printString, ');">', choice, '</div>'].
-
-	stream nextPutAll: '</div>'.
-	stream nextPutAll: '</div>'.
+	stream nextPutAll: '5sp 1fr '.
+	self choices size timesRepeat: [stream nextPutAll: '80px '].
+	stream nextPutAll: '1fr'.
 	^stream contents
-! !
+ ! !
+
+! MultipleChoiceBox methodsFor: 'building' !
+windowWidth
+
+	^(self computeMessageSize rounded + 40) max: 200! !
+
+! MultipleChoiceBox methodsFor: 'opening' !
+defaultTitle
+
+	^'Choice'! !
 
 ! MultipleChoiceBox methodsFor: 'opening' !
 doChoice: aString
@@ -3884,23 +5183,6 @@ doChoice: aString
 	number := Integer readFrom: aString readStream.
 	self close.
 	(self values at: number) value! !
-
-! MultipleChoiceBox methodsFor: 'opening' !
-postOpen
-
-	super postOpen.
-	self setAbsoluteWindowBounds.
-	self withinWebUpdateDo: [self update]! !
-
-! MultipleChoiceBox methodsFor: 'opening' !
-title
-
-	^'Choice'! !
-
-! MultipleChoiceBox methodsFor: 'opening' !
-update
-
-	self addHTMLBeforeEndOf: (self idFor: 'enableDisable') to: self choiceBoxHTML! !
 
 ! MultipleChoiceBox class methodsFor: 'opening' !
 message: aString choices: choicesCollection blocks: blockCollection
@@ -4010,13 +5292,8 @@ openIn: componentId x: x y: y
 		origin: (Integer readFrom: x readStream) @ (Integer readFrom: y readStream);
 		extent: nil;
 		addHTMLBeforeEndOf: 'simTalkRootSection' to: self htmlString;
+		setAbsoluteWindowBounds;
 		postOpen! !
-
-! PopupMenuUI methodsFor: 'opening' !
-postOpen
-
-	super postOpen.
-	self setAbsoluteWindowBounds.! !
 
 ! PopupMenuUI methodsFor: 'rendering' !
 htmlString
@@ -4070,10 +5347,72 @@ message: aString
 
 	message := aString! !
 
+! RequestBox methodsFor: 'actions' !
+cancelAction
+
+	self close.
+	self answerBlock value: nil
+! !
+
+! RequestBox methodsFor: 'actions' !
+okAction
+
+	self close.
+	self answerBlock value: (self bindingAt: #inputField) value.
+! !
+
+! RequestBox methodsFor: 'building' !
+buildOn: aWindowBuilder
+
+	aWindowBuilder
+		verticalLayout: '1fr 30px 30px 30px 1fr' id: 'messageBoxDiv';
+			divId: 'topWhitespace';
+			end;
+			horizontalLayout: '1fr 100px 1fr' id: 'centeringDiv';
+				divId: 'centerLeft';
+				end;
+				textWidget: 'messageId';
+					text: self message;
+				end;
+				divId: 'centerRight';
+				end;
+			end;
+			horizontalLayout: '1fr 190px 1fr' id: 'inputLayoutDiv';
+				divId: 'inputFieldLeftWhitespace';
+				end;
+				inputFieldWidget: 'inputField';
+				end;
+				divId: 'inputFieldRightWhitespace';
+				end;
+			end;
+			horizontalLayout: '5sp 1fr 60px 60px 1fr' id: 'toolBar';
+				divId: 'leftWhitespace';
+				end;
+				pushButton: 'okButton';
+					label: 'Ok';
+					action: [self okAction];
+				end;
+				pushButton: 'cancelButton';
+					label: 'Cancel';
+					action: [self cancelAction];
+				end;
+				divId: 'rightWhitespace';
+				end;
+			end;
+			divId: 'bottomWhitespace';
+			end;
+		end
+! !
+
+! RequestBox methodsFor: 'opening' !
+defaultTitle
+
+	^'Enter'! !
+
 ! RequestBox methodsFor: 'opening' !
 defaultWindowExtent
 
-	^200 @ 200! !
+	^200 @ 150! !
 
 ! RequestBox methodsFor: 'opening' !
 doChoice: aString with: answerString
@@ -4095,48 +5434,23 @@ openAt: aPoint
 postOpen
 
 	super postOpen.
-	self setAbsoluteWindowBounds.
-	self withinWebUpdateDo: [self update].
 
 	self runJavaScript: 'captureKeyInArea("$', self appName ,
 		'","Enter',
 		'", "', (self idFor: 'enableDisable'),
-		'", "', (self idFor: 'input'),
-		'", "pressedEnter:',
+		'", "', (self idFor: 'inputField'), 'Div',
+		'", "', #pressedEnter: , '',
 		'", ["value"]' ,
-		');'! !
+		');'.
 
-! RequestBox methodsFor: 'opening' !
-requestBoxHTML
+	self runJavaScript: 'document.getElementById("', (self idFor: 'inputField'), 'Div").focus();'
 
-	| htmlStream |
-
-	htmlStream := WriteStream on: (String new: 100).
-	htmlStream
-		nextPutAll: '<div style="background-color: white; border: 1px black solid;">';
-		nextPutAll: '<div>', self message, '</div>';
-		nextPutAll: '<input type="text" id="$appName$-input" value="', self initialAnswer, '"></input>';
-		nextPutAll: '<div id="$appName$-buttons" style="display: flex; margin: 5px;">'.
-
-
-	#('Ok' 'Cancel') keysAndValuesDo: [:key :choice |
-		htmlStream nextPutAll: '<div style="border: 1px solid black; padding: 5px; margin: 2px;" onclick="simTalkCallback2(''$$appName$'', ''doChoice:with:'', ', key printString, ',document.getElementById(''$appName$-input'').value);">', choice, '</div>'].
-
-	htmlStream nextPutAll: '</div>'.
-	htmlStream nextPutAll: '</div>'.
-
-	^htmlStream contents
 ! !
 
 ! RequestBox methodsFor: 'opening' !
-title
+preClose
 
-	^'Choose'! !
-
-! RequestBox methodsFor: 'opening' !
-update
-
-	self addHTMLBeforeEndOf: (self idFor: 'enableDisable') to: self requestBoxHTML! !
+	self answerBlock value: nil! !
 
 ! RequestBox methodsFor: 'responding' !
 pressedEnter: aDictionary
@@ -4173,7 +5487,250 @@ uiSpec
 </div>
 '! !
 
-KitManager default currentKit allDefinedClasses: #(Color CompositeComponent DoubleClickEvent Emphasis EmphasisSpan EmphasisStream Event EventModel HTMLBuilder HTMLStyleDefinition HTMLTag HTMLText JSONEvaluator KeyEvent ListChoiceBox ListComponent ListDivComponent ListSelectionEvent MessageBox MessageReceivedEvent MultipleChoiceBox PopupMenuItem PopupMenuUI PushButtonComponent Rectangle RequestBox RichTextEditorComponent SessionVariable TextComponent TextEditorComponent UIComponent UIOperation UIScreen ValueHolder WebSession WebUI) andMethods: #() !
+! WindowBuilder methodsFor: 'accessing' !
+bindings
+
+	^bindings! !
+
+! WindowBuilder methodsFor: 'accessing' !
+bindings: anObject
+
+	bindings := anObject! !
+
+! WindowBuilder methodsFor: 'accessing' !
+currentFrame
+
+	^currentFrame! !
+
+! WindowBuilder methodsFor: 'accessing' !
+currentFrame: anObject
+
+	currentFrame := anObject.
+! !
+
+! WindowBuilder methodsFor: 'accessing' !
+rootFrame
+
+	^rootFrame! !
+
+! WindowBuilder methodsFor: 'accessing' !
+rootFrame: anObject
+
+	rootFrame := anObject! !
+
+! WindowBuilder methodsFor: 'accessing' !
+window
+
+	^window! !
+
+! WindowBuilder methodsFor: 'accessing' !
+window: anObject
+
+	window := anObject! !
+
+! WindowBuilder methodsFor: 'building' !
+action: aBlock
+	self currentFrame widget actionBlock: aBlock! !
+
+! WindowBuilder methodsFor: 'building' !
+addFrame: aFrame
+
+	self currentFrame isNil
+		ifTrue: [self rootFrame: aFrame]
+		ifFalse: [self currentFrame addChild: aFrame].
+
+	aFrame parent: self currentFrame.
+	self currentFrame: aFrame
+	
+	! !
+
+! WindowBuilder methodsFor: 'building' !
+divId: id
+
+	self addFrame: (Frame new
+		id: (self window idFor: id);
+		parent: self currentFrame;
+		yourself)
+	! !
+
+! WindowBuilder methodsFor: 'building' !
+end
+
+	self currentFrame: self currentFrame parent! !
+
+! WindowBuilder methodsFor: 'building' !
+horizontalLayout: aString id: id
+
+	self addFrame: (Frame new
+		id: (self window idFor: id);
+		horizontalChildLayout: aString;
+		parent: self currentFrame;
+		yourself)
+	! !
+
+! WindowBuilder methodsFor: 'building' !
+inputFieldWidget: aString
+
+	| widget |
+	widget := InputFieldComponent new
+		bindTo: self window as: aString asSymbol;
+		yourself.
+
+	self bindings at: aString asSymbol put: widget.
+	self addFrame: (Frame new widget: widget; yourself)
+
+! !
+
+! WindowBuilder methodsFor: 'building' !
+label: aString
+
+	self currentFrame widget label: aString! !
+
+! WindowBuilder methodsFor: 'building' !
+listWidget: aString
+
+	| widget |
+	widget := ListDivComponent new
+		bindTo: self window as: aString asSymbol;
+		yourself.
+
+	self bindings at: aString asSymbol put: widget.
+	self addFrame: (Frame new widget: widget; yourself)
+
+! !
+
+! WindowBuilder methodsFor: 'building' !
+menu: aMenu
+
+	self currentFrame widget menu: aMenu! !
+
+! WindowBuilder methodsFor: 'building' !
+onClicked: aSymbol
+
+	self currentFrame widget onClicked: aSymbol! !
+
+! WindowBuilder methodsFor: 'building' !
+onDoubleClick: aSymbol
+
+	self currentFrame widget
+		onEvent: DoubleClickEvent do: [:event | window perform: aSymbol asSymbol with: event]
+
+ ! !
+
+! WindowBuilder methodsFor: 'building' !
+onSelection: aSymbol
+
+	self currentFrame widget
+		onSelection: aSymbol;
+		onEvent: ListSelectionEvent do: [:event | self window perform: aSymbol asSymbol with: event]
+
+! !
+
+! WindowBuilder methodsFor: 'building' !
+pushButton: aString
+
+	| widget |
+	widget := PushButtonComponent new
+		bindTo: self window as: aString asSymbol;
+		yourself.
+
+	self bindings at: aString asSymbol put: widget.
+	self addFrame: (Frame new widget: widget; yourself)
+
+! !
+
+! WindowBuilder methodsFor: 'building' !
+radioButtonWidget: aString
+
+	| widget |
+	widget := RadioButtonComponent new
+		bindTo: self window as: aString asSymbol;
+		yourself.
+
+	self bindings at: aString asSymbol put: widget.
+	self addFrame: (Frame new widget: widget; yourself)
+
+! !
+
+! WindowBuilder methodsFor: 'building' !
+radioGroupName: aString
+
+	self currentFrame widget radioGroupName: aString! !
+
+! WindowBuilder methodsFor: 'building' !
+richTextWidget: aString
+
+	| widget |
+	widget := RichTextEditorComponent new
+		bindTo: self window as: aString asSymbol;
+		yourself.
+
+	self bindings at: aString asSymbol put: widget.
+	self addFrame: (Frame new widget: widget; yourself)
+
+! !
+
+! WindowBuilder methodsFor: 'building' !
+subject: anObject
+
+	self currentFrame widget subject: anObject ! !
+
+! WindowBuilder methodsFor: 'building' !
+text: aString
+
+	self currentFrame widget text: aString! !
+
+! WindowBuilder methodsFor: 'building' !
+textWidget: aString
+
+	| widget |
+	widget := TextComponent new
+		bindTo: self window as: aString asSymbol;
+		yourself.
+
+	self bindings at: aString asSymbol put: widget.
+	self addFrame: (Frame new widget: widget; yourself)
+
+! !
+
+! WindowBuilder methodsFor: 'building' !
+verticalLayout: aString id: id
+
+	self addFrame: (Frame new
+		id: (self window idFor: id);
+		verticalChildLayout: aString;
+		parent: self currentFrame;
+		yourself)
+	! !
+
+! WindowBuilder methodsFor: 'initializing' !
+initialize
+
+	self bindings: Dictionary new
+! !
+
+! WindowBuilder methodsFor: 'installing' !
+installOn: aWindow
+
+	aWindow frame: self rootFrame.
+	self bindings keysAndValuesDo: [:key :value |
+		aWindow bindingAt: key put: value].
+! !
+
+! WindowBuilder class methodsFor: 'instance creation' !
+new
+
+	^super new initialize; yourself! !
+
+! WindowBuilder class methodsFor: 'instance creation' !
+on: aWindow
+
+	^self new
+		window: aWindow;
+		yourself
+! !
+
+KitManager default currentKit allDefinedClasses: #(Color CompositeComponent DoubleClickEvent Emphasis EmphasisSpan EmphasisStream Event EventModel Frame HTMLBuilder HTMLStyleDefinition HTMLTag HTMLText InputFieldComponent JSONEvaluator KeyEvent Layout ListChoiceBox ListDivComponent ListSelectionEvent MessageBox MessageReceivedEvent MultipleChoiceBox PopupMenuItem PopupMenuUI PushButtonComponent RadioButtonComponent Rectangle RequestBox RichTextEditorComponent SessionVariable TextComponent UIComponent UIOperation UIScreen ValueHolder WebSession WebUI WindowBuilder) andMethods: #() !
 
 KitManager default currentKit allDefinedMethodsFor: Rectangle methods: #(#'+' #'-' #bottom #bounds #center #'containsPoint:' #corner #'corner:' #extent #height #left #origin #'origin:' #'printOn:' #right #top #'translatedBy:' #triangleVertices #width) !
 
@@ -4182,10 +5739,6 @@ KitManager default currentKit allDefinedMethodsFor: Rectangle class methods: #(#
 KitManager default currentKit allDefinedMethodsFor: UIOperation methods: #(#arguments #'arguments:' #name #'name:') !
 
 KitManager default currentKit allDefinedMethodsFor: UIOperation class methods: #() !
-
-KitManager default currentKit allDefinedMethodsFor: UIScreen methods: #(#'addComponent:' #addedCommands #addedComponents #'addedComponents:' #componentNumber #'componentNumber:' #components #'components:' #deletedCommands #deletedComponents #'deletedComponents:' #initialize #modifiedCommands #modifiedComponents #'modifiedComponents:' #nextComponentName #refreshCommands #'removeComponent:' #renderChanges #'renderChangesOn:' #reset #webSocket #'webSocket:') !
-
-KitManager default currentKit allDefinedMethodsFor: UIScreen class methods: #(#new) !
 
 KitManager default currentKit allDefinedMethodsFor: Event methods: #(#eventKey) !
 
@@ -4207,10 +5760,6 @@ KitManager default currentKit allDefinedMethodsFor: MessageReceivedEvent methods
 
 KitManager default currentKit allDefinedMethodsFor: MessageReceivedEvent class methods: #() !
 
-KitManager default currentKit allDefinedMethodsFor: WebSession methods: #(#applications #'applications:' #clearSessionVariables #closeAllApplications #closeAllWindows #'closeApplication:' #currentOpenLocation #'currentOpenLocation:' #initialize #newVariableName #nextOpenLocation #'openApplication:' #openWindowIDs #openingLocationIncrement #'removeSessionVariableAt:' #'sessionVariableAt:' #'sessionVariableAt:put:' #sessionVariables #'sessionVariables:') !
-
-KitManager default currentKit allDefinedMethodsFor: WebSession class methods: #(#closeAllApplications #current #new) !
-
 KitManager default currentKit allDefinedMethodsFor: SessionVariable methods: #(#decrement #'decrementBy:' #increment #'incrementBy:' #value #'value:') !
 
 KitManager default currentKit allDefinedMethodsFor: SessionVariable class methods: #() !
@@ -4231,11 +5780,7 @@ KitManager default currentKit allDefinedMethodsFor: HTMLStyleDefinition methods:
 
 KitManager default currentKit allDefinedMethodsFor: HTMLStyleDefinition class methods: #(#'name:' #new) !
 
-KitManager default currentKit allDefinedMethodsFor: WebUI methods: #(#'addComponent:beforeEndOf:' #'addHTMLAfterBeginOf:to:' #'addHTMLAfterEndOf:to:' #'addHTMLBeforeBeginOf:to:' #'addHTMLBeforeEndOf:to:' #'addToInnerHTML:' #'appDivOn:' #appName #'appName:' #'bindComponent:' #'bindingAt:' #'bindingAt:ifAbsentPut:' #bindings #'bindings:' #bottomRightResizeDiv #bottomRightResizeMouseMoveCallbackString #bottomRightResizeMouseUpCallbackString #'bounds:' #bringToTop #'bringToTop:' #'changeClassOf:from:to:' #close #'closeButtonDivOn:' #defaultWindowExtent #defaultWindowOrigin #disable #'disableWhile:' #'dragBarDivOn:' #dragDiv #'dragWindow:' #enable #'enableDisableDivOn:' #'errorMessage:' #extent #'extent:' #fixedOffset #flags #'flags:' #html #'htmlForSpec:' #'htmlQuote:withEmphasis:' #htmlTree #'htmlTree:' #'idFor:' #'infoMessage:' #initialize #isDisabled #isEnabled #isUI #'javascriptQuote:' #'javascriptQuote:withEmphasis:' #'listComponentNamed:menu:' #'message:' #'message:choices:blocks:' #'message:okBlock:cancelBlock:' #'message:yesBlock:noBlock:' #mouseMoveCallbackString #mouseUpCallbackString #open #'open:' #opened #'opened:' #origin #'origin:' #parentName #'parentName:' #postBuild #postOpen #'removeElement:' #'replaceAppNameIn:' #'replaceHTMLFor:with:' #'request:initialAnswer:answerBlock:' #'request:initialAnswer:answerBlock:at:' #'resizeBottomRight:' #resizeBottomRightCallback #'resizeBottomRightWindow:' #'resizeDivOn:' #rootName #'runJavaScript:' #setAbsoluteWindowBounds #'setAttribute:of:to:' #'setInnerHTML:' #'setInnerHTMLOf:to:' #'stopDrag:' #'textEditorComponentNamed:menu:' #title #'titleBarDivOn:' #titleClickCallbackString #'titleDivOn:' #'updateIndexedTableTo:' #'updateRadioButtonField:to:' #'warningMessage:' #widgetContentType #windowResized #'withinWebUpdateDo:' #'write:inRichTextArea:position:' #'write:inTextArea:position:') !
-
-KitManager default currentKit allDefinedMethodsFor: WebUI class methods: #(#allAspects #new #open) !
-
-KitManager default currentKit allDefinedMethodsFor: PopupMenuUI methods: #(#'addMenuItem:' #close #'doMenuWith:' #hideMenu #htmlString #initialize #menuItems #'menuItems:' #'openIn:x:y:' #postOpen #'renderHTMLOn:' #widgetId #'widgetId:') !
+KitManager default currentKit allDefinedMethodsFor: PopupMenuUI methods: #(#'addMenuItem:' #close #'doMenuWith:' #hideMenu #htmlString #initialize #menuItems #'menuItems:' #'openIn:x:y:' #'renderHTMLOn:' #widgetId #'widgetId:') !
 
 KitManager default currentKit allDefinedMethodsFor: PopupMenuUI class methods: #() !
 
@@ -4243,29 +5788,9 @@ KitManager default currentKit allDefinedMethodsFor: PopupMenuItem methods: #(#ac
 
 KitManager default currentKit allDefinedMethodsFor: PopupMenuItem class methods: #(#new) !
 
-KitManager default currentKit allDefinedMethodsFor: ListChoiceBox methods: #(#answerBlock #'answerBlock:' #choices #'choices:' #doCancel #'doOk:' #listChoiceBoxHTML #message #'message:' #postOpen #update #values #'values:') !
-
-KitManager default currentKit allDefinedMethodsFor: ListChoiceBox class methods: #(#uiSpec) !
-
-KitManager default currentKit allDefinedMethodsFor: MultipleChoiceBox methods: #(#choiceBoxHTML #choices #'choices:' #'doChoice:' #message #'message:' #postOpen #title #update #values #'values:') !
-
-KitManager default currentKit allDefinedMethodsFor: MultipleChoiceBox class methods: #(#'message:choices:blocks:' #'message:choices:blocks:at:' #'message:okBlock:cancelBlock:' #'message:okBlock:cancelBlock:at:' #'message:yesBlock:noBlock:' #'message:yesBlock:noBlock:at:') !
-
-KitManager default currentKit allDefinedMethodsFor: MessageBox methods: #(#message #'message:' #messageString #postOpen #severity #'severity:' #styleForSeverity #title #update) !
-
-KitManager default currentKit allDefinedMethodsFor: MessageBox class methods: #(#'errorMessage:' #'errorMessage:at:' #'infoMessage:' #'infoMessage:at:' #'message:' #'message:at:' #'message:severity:at:' #uiSpec #'warningMessage:' #'warningMessage:at:') !
-
-KitManager default currentKit allDefinedMethodsFor: HTMLBuilder methods: #(#'attributeAt:put:' #'class:' #currentNode #'currentNode:' #div #'div:' #endDiv #'endTag:' #endTagStyle #htmlNode #'htmlNode:' #htmlString #'htmlUnquote:' #'htmlUnquoteCharacter:from:to:' #'htmlUnquoteSpecialCharacterIn:out:' #'htmlUnquoteTagIn:out:' #'id:' #'inHorizontalLayout:do:' #'inStyle:do:' #'inTag:do:' #initialize #'install:' #'key:value:' #nodeStack #'nodeStack:' #'perform:on:' #'startTag:' #tagStyle #'text:') !
+KitManager default currentKit allDefinedMethodsFor: HTMLBuilder methods: #(#'attributeAt:put:' #'bounds:' #'class:' #currentNode #'currentNode:' #div #'div:' #endDiv #'endTag:' #endTagStyle #htmlNode #'htmlNode:' #htmlString #'htmlUnquote:' #'htmlUnquoteCharacter:from:to:' #'htmlUnquoteSpecialCharacterIn:out:' #'htmlUnquoteTagIn:out:' #'id:' #'inHorizontalLayout:do:' #'inStyle:do:' #'inTag:do:' #initialize #input #'install:' #'key:value:' #nodeStack #'nodeStack:' #'perform:on:' #'startTag:' #tagStyle #'text:') !
 
 KitManager default currentKit allDefinedMethodsFor: HTMLBuilder class methods: #(#new) !
-
-KitManager default currentKit allDefinedMethodsFor: ListComponent methods: #(#'changedSelectedItem:' #doubleClick #list #'list:' #listNumberOfRows #'listNumberOfRows:' #'optionStyleFor:' #optionStyles #'optionStyles:' #'renderOn:' #selection #selectionIndex #'selectionIndex:' #ui #'ui:' #updateList #updateSelectionIndex) !
-
-KitManager default currentKit allDefinedMethodsFor: ListComponent class methods: #() !
-
-KitManager default currentKit allDefinedMethodsFor: TextEditorComponent methods: #(#'addEmphasis:' #clearEmphasis #codeMenu #doItMenuItem #'doItWith:' #emphasisCollection #'emphasisCollection:' #initialize #inspectItMenuItem #'inspectItWith:' #installCodeMenu #'load:' #loadMenuItem #'loadWith:' #printItMenuItem #'printItWith:' #'renderOn:' #'save:to:' #saveMenuItem #'saveWith:' #selectionEnd #'selectionEnd:' #selectionStart #'selectionStart:' #subject #'subject:' #text #'text:' #updateText) !
-
-KitManager default currentKit allDefinedMethodsFor: TextEditorComponent class methods: #() !
 
 KitManager default currentKit allDefinedMethodsFor: ListSelectionEvent methods: #(#selectionIndex #'selectionIndex:') !
 
@@ -4283,21 +5808,13 @@ KitManager default currentKit allDefinedMethodsFor: EmphasisSpan methods: #(#emp
 
 KitManager default currentKit allDefinedMethodsFor: EmphasisSpan class methods: #(#'from:to:with:') !
 
-KitManager default currentKit allDefinedMethodsFor: RichTextEditorComponent methods: #(#'addEmphasis:' #clearEmphasis #codeMenu #doItMenuItem #'doItWith:' #emphasisCollection #'emphasisCollection:' #initialize #inspectItMenuItem #'inspectItWith:' #installCodeMenu #'load:' #loadMenuItem #'loadWith:' #printItMenuItem #'printItWith:' #quotedText #'renderOn:' #'save:to:' #saveMenuItem #'saveWith:' #selectionEnd #'selectionEnd:' #selectionStart #'selectionStart:' #'setSelectionFrom:to:' #subject #'subject:' #text #'text:' #updateText) !
+KitManager default currentKit allDefinedMethodsFor: RichTextEditorComponent methods: #(#'addEmphasis:' #'captureText:' #clearEmphasis #'debugItFrom:to:onError:' #'debugItWith:' #divStyleString #'doItWith:' #emphasisCollection #'emphasisCollection:' #'evaluate:from:to:onError:' #evaluateAll #'evaluateFor:' #'evaluateFrom:to:onError:' #initialize #'inspectFrom:to:onError:' #'inspectItFrom:to:onError:' #inspectItMenuItem #'inspectItWith:' #'load:' #loadMenuItem #'loadWith:' #postOpen #'printItFrom:to:onError:' #printItMenuItem #'printItWith:' #quotedText #'renderOn:' #resize #'save:to:' #saveMenuItem #'saveWith:' #selectionEnd #'selectionEnd:' #selectionStart #'selectionStart:' #'setSelectionFrom:to:' #'setText:' #subject #'subject:' #text #'text:' #'timeItFrom:to:onError:' #'timeItWith:' #updateText) !
 
 KitManager default currentKit allDefinedMethodsFor: RichTextEditorComponent class methods: #() !
-
-KitManager default currentKit allDefinedMethodsFor: PushButtonComponent methods: #(#actionBlock #'actionBlock:' #label #'label:' #pressAction #'renderOn:') !
-
-KitManager default currentKit allDefinedMethodsFor: PushButtonComponent class methods: #() !
 
 KitManager default currentKit allDefinedMethodsFor: Color methods: #(#alpha #'alpha:' #asHSV #asString #blue #'blue:' #'fromHSV:' #green #'green:' #hue #'hue:' #'hueFrom:c:x:' #'printOn:' #red #'red:' #saturation #'saturation:' #value #'value:') !
 
 KitManager default currentKit allDefinedMethodsFor: Color class methods: #(#'red:green:blue:' #'red:green:blue:alpha:' #white) !
-
-KitManager default currentKit allDefinedMethodsFor: ListDivComponent methods: #(#'changedSelectedItem:' #doubleClick #list #'list:' #listNumberOfRows #'listNumberOfRows:' #'optionStyleFor:' #optionStyles #'optionStyles:' #'renderOn:' #selection #selectionIndex #'selectionIndex:' #ui #'ui:' #updateList #updateSelectionIndex) !
-
-KitManager default currentKit allDefinedMethodsFor: ListDivComponent class methods: #() !
 
 KitManager default currentKit allDefinedMethodsFor: CompositeComponent methods: #(#children #'children:' #initialize) !
 
@@ -4307,7 +5824,7 @@ KitManager default currentKit allDefinedMethodsFor: TextComponent methods: #(#'r
 
 KitManager default currentKit allDefinedMethodsFor: TextComponent class methods: #() !
 
-KitManager default currentKit allDefinedMethodsFor: RequestBox methods: #(#answerBlock #'answerBlock:' #defaultWindowExtent #'doChoice:with:' #initialAnswer #'initialAnswer:' #message #'message:' #'openAt:' #postOpen #'pressedEnter:' #requestBoxHTML #title #update) !
+KitManager default currentKit allDefinedMethodsFor: RequestBox methods: #(#answerBlock #'answerBlock:' #'buildOn:' #cancelAction #defaultTitle #defaultWindowExtent #'doChoice:with:' #initialAnswer #'initialAnswer:' #message #'message:' #okAction #'openAt:' #postOpen #preClose #'pressedEnter:') !
 
 KitManager default currentKit allDefinedMethodsFor: RequestBox class methods: #(#'request:initialAnswer:answerBlock:' #'request:initialAnswer:answerBlock:at:' #uiSpec) !
 
@@ -4315,8 +5832,60 @@ KitManager default currentKit allDefinedMethodsFor: EmphasisStream methods: #(#'
 
 KitManager default currentKit allDefinedMethodsFor: EmphasisStream class methods: #(#'on:') !
 
-KitManager default currentKit allDefinedMethodsFor: UIComponent methods: #(#bind #'bindTo:' #'bindTo:as:' #'bindTo:id:' #displayBlock #'displayBlock:' #height #'height:' #htmlString #id #'id:' #'idFor:' #menu #'menu:' #'openMenuX:y:' #'renderOn:' #ui #'ui:' #unbind #update) !
+KitManager default currentKit allDefinedMethodsFor: WindowBuilder methods: #(#'action:' #'addFrame:' #bindings #'bindings:' #currentFrame #'currentFrame:' #'divId:' #end #'horizontalLayout:id:' #initialize #'inputFieldWidget:' #'installOn:' #'label:' #'listWidget:' #'menu:' #'onClicked:' #'onDoubleClick:' #'onSelection:' #'pushButton:' #'radioButtonWidget:' #'radioGroupName:' #'richTextWidget:' #rootFrame #'rootFrame:' #'subject:' #'text:' #'textWidget:' #'verticalLayout:id:' #window #'window:') !
+
+KitManager default currentKit allDefinedMethodsFor: WindowBuilder class methods: #(#new #'on:') !
+
+KitManager default currentKit allDefinedMethodsFor: RadioButtonComponent methods: #(#label #'label:' #onClicked #'onClicked:' #radioButtonClicked #radioGroupName #'radioGroupName:' #'renderOn:') !
+
+KitManager default currentKit allDefinedMethodsFor: RadioButtonComponent class methods: #() !
+
+KitManager default currentKit allDefinedMethodsFor: WebUI methods: #(#'addComponent:beforeEndOf:' #'addHTMLAfterBeginOf:to:' #'addHTMLAfterEndOf:to:' #'addHTMLBeforeBeginOf:to:' #'addHTMLBeforeEndOf:to:' #'addToInnerHTML:' #'appDivOn:' #appName #'appName:' #'bindComponent:' #'bindingAt:' #'bindingAt:ifAbsentPut:' #'bindingAt:put:' #bindings #'bindings:' #bottomLeftResizeDiv #bottomLeftResizeMouseMoveCallbackString #bottomLeftResizeStyle #bottomResizeDiv #bottomResizeMouseMoveCallbackString #bottomResizeStyle #bottomRightResizeDiv #bottomRightResizeMouseMoveCallbackString #bottomRightResizeMouseUpCallbackString #bottomRightResizeStyle #bounds #bringToTop #'bringToTop:' #build #'buildOn:' #'changeClassOf:from:to:' #close #'closeButtonDivOn:' #defaultFont #defaultTitle #defaultWindowExtent #defaultWindowOrigin #disable #'disableWhile:' #'dragBarDivOn:' #dragDiv #'dragWindow:' #enable #enableClickCallbackString #'enableDisableDivOn:' #enableDisableStyle #'errorMessage:' #extent #'extent:' #fixedOffset #flags #'flags:' #font #frame #'frame:' #html #'htmlQuote:withEmphasis:' #htmlTree #'htmlTree:' #'idFor:' #'infoMessage:' #initialize #isDisabled #isEnabled #isOpen #isUI #'javascriptQuote:' #'javascriptQuote:withEmphasis:' #leftResizeDiv #leftResizeMouseMoveCallbackString #leftResizeStyle #'listDivComponentNamed:menu:' #mainDivStyle #'message:' #'message:choices:blocks:' #'message:okBlock:cancelBlock:' #'message:yesBlock:noBlock:' #minimumSize #mouseMoveCallbackString #mouseUpCallbackString #open #opened #'opened:' #origin #'origin:' #parentName #'parentName:' #postBuild #postOpen #preClose #'removeElement:' #'renderBodyOn:' #'replaceAppNameIn:' #'replaceHTMLFor:with:' #'request:initialAnswer:answerBlock:' #'request:initialAnswer:answerBlock:at:' #'resizeBottom:' #resizeBottomCallback #'resizeBottomLeft:' #resizeBottomLeftCallback #'resizeBottomLeftWindow:' #'resizeBottomRight:' #resizeBottomRightCallback #'resizeBottomRightWindow:' #'resizeBottomWindow:' #'resizeDivOn:' #resizeDivStyle #resizeFrame #'resizeLeft:' #resizeLeftCallback #'resizeLeftWindow:' #'resizeRight:' #resizeRightCallback #'resizeRightWindow:' #'resizeTop:' #resizeTopCallback #'resizeTopLeft:' #resizeTopLeftCallback #'resizeTopLeftWindow:' #'resizeTopRight:' #resizeTopRightCallback #'resizeTopRightWindow:' #'resizeTopWindow:' #rightResizeDiv #rightResizeMouseMoveCallbackString #rightResizeMouseUpCallbackString #rightResizeStyle #rootName #'runJavaScript:' #setAbsoluteWindowBounds #'setAttribute:of:to:' #'setInnerHTML:' #'setInnerHTMLOf:to:' #'startDrag:' #'stopDrag:' #title #'title:' #'titleBarDivOn:' #titleClickCallbackString #'titleDivOn:' #topLeftResizeDiv #topLeftResizeMouseMoveCallbackString #topLeftResizeStyle #topResizeDiv #topResizeMouseMoveCallbackString #topResizeStyle #topRightResizeDiv #topRightResizeMouseMoveCallbackString #topRightResizeStyle #'updateIndexedTableTo:' #'updateRadioButtonField:to:' #updateTitle #'warningMessage:' #widgetContentType #windowResized #'withUIScreen:do:' #'withinWebUpdateDo:' #'write:inRichTextArea:position:' #'write:inTextArea:position:') !
+
+KitManager default currentKit allDefinedMethodsFor: WebUI class methods: #(#allAspects #new #open) !
+
+KitManager default currentKit allDefinedMethodsFor: UIComponent methods: #(#bind #'bindTo:' #'bindTo:as:' #'bindTo:id:' #bounds #'bounds:' #defaultFont #displayBlock #'displayBlock:' #font #frame #'frame:' #height #'height:' #htmlString #id #'id:' #'idFor:' #menu #'menu:' #'openMenuX:y:' #postOpen #'printOn:' #'renderOn:' #resize #ui #'ui:' #unbind #update) !
 
 KitManager default currentKit allDefinedMethodsFor: UIComponent class methods: #() !
+
+KitManager default currentKit allDefinedMethodsFor: Layout methods: #(#'componentsWithin:' #computeLayout #'layoutString:' #spacing #'spacing:') !
+
+KitManager default currentKit allDefinedMethodsFor: Layout class methods: #(#'layoutString:') !
+
+KitManager default currentKit allDefinedMethodsFor: PushButtonComponent methods: #(#actionBlock #'actionBlock:' #backgroundColor #font #label #'label:' #measureText #'newRenderOn:' #'oldRenderOn:' #oldStyleString #pressAction #'renderOn:' #resize #styleString #'textSizeWith:') !
+
+KitManager default currentKit allDefinedMethodsFor: PushButtonComponent class methods: #() !
+
+KitManager default currentKit allDefinedMethodsFor: InputFieldComponent methods: #(#defaultValue #'defaultValue:' #'inputFieldChanged:' #'renderOn:' #value #'value:') !
+
+KitManager default currentKit allDefinedMethodsFor: InputFieldComponent class methods: #() !
+
+KitManager default currentKit allDefinedMethodsFor: MessageBox methods: #(#'buildOn:' #computeMessageSize #defaultTitle #defaultWindowExtent #message #'message:' #messageHorizontalLayoutString #'messageSizeWith:' #messageString #postBuild #severity #'severity:' #styleForSeverity #windowWidth) !
+
+KitManager default currentKit allDefinedMethodsFor: MessageBox class methods: #(#'errorMessage:' #'errorMessage:at:' #'infoMessage:' #'infoMessage:at:' #'message:' #'message:at:' #'message:severity:at:' #uiSpec #'warningMessage:' #'warningMessage:at:') !
+
+KitManager default currentKit allDefinedMethodsFor: MultipleChoiceBox methods: #(#'buildOn:' #choices #'choices:' #computeMessageSize #defaultTitle #defaultWindowExtent #'doChoice:' #message #'message:' #messageHorizontalLayoutString #'messageSizeWith:' #postBuild #toolBarHorizontalString #values #'values:' #windowWidth) !
+
+KitManager default currentKit allDefinedMethodsFor: MultipleChoiceBox class methods: #(#'message:choices:blocks:' #'message:choices:blocks:at:' #'message:okBlock:cancelBlock:' #'message:okBlock:cancelBlock:at:' #'message:yesBlock:noBlock:' #'message:yesBlock:noBlock:at:') !
+
+KitManager default currentKit allDefinedMethodsFor: ListChoiceBox methods: #(#answerBlock #'answerBlock:' #'buildOn:' #cancelAction #choices #'choices:' #computeMessageSize #defaultTitle #defaultWindowExtent #message #'message:' #messageHorizontalLayoutString #'messageSizeWith:' #okAction #postBuild #postOpen #update #values #'values:' #windowWidth) !
+
+KitManager default currentKit allDefinedMethodsFor: ListChoiceBox class methods: #() !
+
+KitManager default currentKit allDefinedMethodsFor: Frame methods: #(#'addChild:' #bounds #'bounds:' #'childNamed:' #children #'children:' #horizontalChildLayout #'horizontalChildLayout:' #id #'id:' #idOrWidgetId #initialize #'layoutChildrenHorizontallyOn:within:' #'layoutChildrenVerticallyOn:within:' #'layoutStringFor:within:' #parent #'parent:' #'printOn:' #'renderOn:' #'resize:within:' #'resizeChildrenOn:within:' #'resizeDivOn:within:' #'resizeWidgetOn:within:' #verticalChildLayout #'verticalChildLayout:' #widget #'widget:') !
+
+KitManager default currentKit allDefinedMethodsFor: Frame class methods: #(#new) !
+
+KitManager default currentKit allDefinedMethodsFor: UIScreen methods: #(#'addComponent:' #addedCommands #addedComponents #'addedComponents:' #componentNumber #'componentNumber:' #components #'components:' #deletedCommands #deletedComponents #'deletedComponents:' #initialize #modifiedCommands #modifiedComponents #'modifiedComponents:' #nextComponentName #'removeComponent:' #reset #webSession #'webSession:' #webSocket #'webSocket:') !
+
+KitManager default currentKit allDefinedMethodsFor: UIScreen class methods: #(#new) !
+
+KitManager default currentKit allDefinedMethodsFor: WebSession methods: #(#applications #'applications:' #'bringToTop:' #clearSessionVariables #closeAllApplications #closeAllWindows #'closeApplication:' #currentApplication #currentOpenLocation #'currentOpenLocation:' #initialize #newVariableName #nextOpenLocation #'openApplication:' #openWindowIDs #openingLocationIncrement #'removeSessionVariableAt:' #'sessionVariableAt:' #'sessionVariableAt:put:' #sessionVariables #'sessionVariables:') !
+
+KitManager default currentKit allDefinedMethodsFor: WebSession class methods: #(#closeAllApplications #current #new) !
+
+KitManager default currentKit allDefinedMethodsFor: ListDivComponent methods: #(#'changedSelectedItem:' #'doSelectWith:' #doubleClick #'doubleClickCallbackString:' #'doubleClickWith:' #list #'list:' #listNumberOfRows #'listNumberOfRows:' #onSelection #'onSelection:' #'optionStyleFor:' #optionStyles #'optionStyles:' #'renderOn:' #resize #scrollHeight #'scrollHeight:' #'scrollHeightWith:' #scrollToSelection #scrollTop #'scrollTop:' #scrollableDivName #'scrolled:' #'selectItemCallbackString:' #selection #selectionIndex #'selectionIndex:' #styleString #ui #'ui:' #update #updateForResize #updateList #updateSelectionIndex) !
+
+KitManager default currentKit allDefinedMethodsFor: ListDivComponent class methods: #() !
 
 KitManager default finishFileinKit !

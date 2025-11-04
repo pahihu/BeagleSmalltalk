@@ -146,6 +146,7 @@ openWindow
 
 	TestcaseWindow new
 		addSuite: self;
+		title: 'Testcase Window for ', self name;
 		open
 ! !
 
@@ -157,6 +158,7 @@ openWindowAllSuites
 	Testcase withAllSubclasses do: [:class |
 		window addSuite: class].
 
+	window title: 'Testcase Window for All Suites'.
 	window open
 ! !
 
@@ -830,6 +832,33 @@ addSuite: aTestcaseClass
 	self suites add: aTestcaseClass.
 	self tests addAll: aTestcaseClass allTestcases! !
 
+! TestcaseWindow methodsFor: 'building' !
+buildOn: aWindowBuilder
+
+	aWindowBuilder
+		verticalLayout: '35px 1fr' id: 'testcaseDiv';
+			horizontalLayout: '5sp 108px 108px 108px 1fr' id: 'toolBar';
+				pushButton: 'runAll';
+					label: 'Run All';
+					action: [self runAll];
+				end;
+				pushButton: 'debugAll';
+					label: 'Debug All';
+					action: [self debugAll];
+				end;
+				pushButton: 'clear';
+					label: 'Clear';
+					action: [self clear];
+				end;
+				divId: 'toolbarWhiteSpace';
+				end;
+			end;
+			listWidget: #testcaseList;
+			end;
+		end
+
+ ! !
+
 ! TestcaseWindow methodsFor: 'initializing' !
 initialize
 
@@ -861,20 +890,22 @@ debugAllWidget
  ! !
 
 ! TestcaseWindow methodsFor: 'opening' !
+defaultTitle
+
+	^'Testcase Window'! !
+
+! TestcaseWindow methodsFor: 'opening' !
 defaultWindowExtent
 
 	^400 @ 400! !
 
 ! TestcaseWindow methodsFor: 'opening' !
-install
-
-	self addHTMLBeforeEndOf: (self idFor: 'enableDisable') to: self testcaseHTML! !
+install! !
 
 ! TestcaseWindow methodsFor: 'opening' !
 postOpen
 
 	super postOpen.
-	self setAbsoluteWindowBounds.
 	self install; update
 ! !
 
@@ -890,43 +921,10 @@ runAllWidget
  ! !
 
 ! TestcaseWindow methodsFor: 'opening' !
-testcaseHTML
-
-	^HTMLBuilder new
-		div: [:builder |
-			builder
-				div: [:builder2 |
-					builder2
-						id: (self idFor: 'toolBar');
-						class: 'buttonBar';
-						install: self runAllWidget;
-						install: self debugAllWidget;
-						install: self clearWidget];
-				install: self testcaseListWidget;
-				yourself];
-		htmlString    ! !
-
-! TestcaseWindow methodsFor: 'opening' !
 testcaseListId
 
 	^self idFor: 'testcaseList'
 ! !
-
-! TestcaseWindow methodsFor: 'opening' !
-testcaseListWidget
-
-	^self bindingAt: #testcaseList ifAbsentPut: [
-		ListComponent new
-			bindTo: self id: self testcaseListId;
-			listNumberOfRows: 10;
-			yourself]
-  
- ! !
-
-! TestcaseWindow methodsFor: 'opening' !
-title
-
-	^'Testcase Window'! !
 
 ! TestcaseWindow methodsFor: 'updating' !
 allTestcases
@@ -947,7 +945,7 @@ update
 				each status = #passed
 					ifTrue: ['color: green;']
 					ifFalse: [each status = #failed
-						ifTrue: ['background-color: red; color: white;']
+						ifTrue: ['color: red;']
 						ifFalse: ['']]]);
 			list: (self tests collect: [:each | each printString])
 		]! !
@@ -962,7 +960,7 @@ KitManager default currentKit allDefinedMethodsFor: ObjectTests methods: #(#test
 
 KitManager default currentKit allDefinedMethodsFor: ObjectTests class methods: #() !
 
-KitManager default currentKit allDefinedMethodsFor: TestcaseWindow methods: #(#'addSuite:' #allTestcases #clear #clearWidget #debugAll #debugAllWidget #defaultWindowExtent #initialize #install #postOpen #runAll #runAllWidget #suites #'suites:' #testcaseHTML #testcaseListId #testcaseListWidget #tests #'tests:' #title #update) !
+KitManager default currentKit allDefinedMethodsFor: TestcaseWindow methods: #(#'addSuite:' #allTestcases #'buildOn:' #clear #clearWidget #debugAll #debugAllWidget #defaultTitle #defaultWindowExtent #initialize #install #postOpen #runAll #runAllWidget #suites #'suites:' #testcaseListId #tests #'tests:' #update) !
 
 KitManager default currentKit allDefinedMethodsFor: TestcaseWindow class methods: #() !
 

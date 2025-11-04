@@ -171,7 +171,7 @@ Dictionary variableSubclassNamed: #IdentityDictionary
 	kitName: 'Core' !
 
 Object variableSubclassNamed: #JunkClass
-	instVarNames: 'instVar1 instVar2'
+	instVarNames: 'instVar1 instVar2 instVar3'
 	classInstVarNames: ''
 	environment: Object systemDictionary
 	kitName: 'Core' !
@@ -338,6 +338,12 @@ Object subclassNamed: #SHA1
 	environment: Object systemDictionary
 	kitName: 'Core' !
 
+Object subclassNamed: #ScheduledTask
+	instVarNames: 'time block'
+	classInstVarNames: ''
+	environment: Object systemDictionary
+	kitName: 'Core' !
+
 Collection subclassNamed: #SequenceableCollection
 	instVarNames: ''
 	classInstVarNames: ''
@@ -417,7 +423,7 @@ Object subclassNamed: #SocketLauncher
 	kitName: 'Core' !
 
 SocketHandler subclassNamed: #SocketTimeoutHandler
-	instVarNames: 'timeoutBlock'
+	instVarNames: 'timeoutBlock scheduledTasks'
 	classInstVarNames: ''
 	environment: Object systemDictionary
 	kitName: 'Core' !
@@ -1570,6 +1576,8 @@ referencesToInstanceVariable: aString inClass: aBehavior
 
 	| methods |
 
+	aString isNil ifTrue: [^#()].
+
 	methods := Set new.
 	self
 		gettersOfInstanceVariable:  aString inClass: aBehavior into: methods;
@@ -1764,6 +1772,11 @@ finish
 	<primitive: 409>! !
 
 ! BeagleSystem class methodsFor: 'startup' !
+releaseNumber
+
+	^'1.1'! !
+
+! BeagleSystem class methodsFor: 'startup' !
 shutdown
 
 	self log: 'Shutdown'.
@@ -1790,7 +1803,6 @@ startAcceptSocket
 				yourself);
 			yourself);
 		timeoutHandler: (SocketTimeoutHandler new
-			timeoutBlock: [];
 			yourself);
 		startPollLoop.
 
@@ -2234,6 +2246,22 @@ on: anExceptionClass do: handlerBlock
 		catch: handlerBlock
 		finally: []
 ! !
+
+! BlockClosure methodsFor: 'evaluating' !
+runInMicroseconds: aNumber
+
+	CurrentSocketDispatcher timeoutHandler addTask: (ScheduledTask new
+		block: self;
+		time: (Time microsecondClockValue + aNumber);
+		yourself)! !
+
+! BlockClosure methodsFor: 'evaluating' !
+runInMilliseconds: aNumber
+
+	CurrentSocketDispatcher timeoutHandler addTask: (ScheduledTask new
+		block: self;
+		time: (Time microsecondClockValue + (aNumber * 1000));
+		yourself)! !
 
 ! BlockClosure methodsFor: 'evaluating' !
 value
@@ -3960,9 +3988,6 @@ rehashAllDictionaries
 		].
 ! !
 
-! Doit class methodsFor: 'uncategorized' !
-doit ^[KitManager current fileoutAllKits] value! !
-
 ! EventBase methodsFor: 'accessing' !
 eventRegistry
 	^eventRegistry! !
@@ -4811,7 +4836,6 @@ partialSortDefinedClassesDo: aBlock
 		class isNil ifTrue: [^self].
 		aBlock value: class.
 		classesToProcess remove: class.
-self log: class name.
 		sortedClasses remove: class]  ! !
 
 ! Kit methodsFor: 'adding and removing' !
@@ -6443,25 +6467,7 @@ raisedToInteger: aNumber
 ! Number methodsFor: 'arithmetic' !
 raisedToNegativeInteger: aNumber
 
-	| power factors number |
-
-	power := self class unity.
-	
-	factors := OrderedCollection new: 10.
-
-	number := aNumber negated.
-
-	[number = 0] whileFalse: [
-		factors add: (number rem: 2).
-		number := number quo: 2].
-
-	power := self class unity.
-	
-	factors reverseDo: [:each |
-		power := power squared.
-		each == 1 ifTrue: [power := power // self]].
-
-	^power! !
+	^self asFloat raisedToNegativeInteger: aNumber! !
 
 ! Number methodsFor: 'arithmetic' !
 reciprocal
@@ -6582,6 +6588,11 @@ radiansToDegrees
 	^self * 180.0 / Float pi! !
 
 ! Number methodsFor: 'converting' !
+rounded
+
+	^(self + 0.5) asInteger! !
+
+! Number methodsFor: 'converting' !
 sign
 
 	self < self class zero ifTrue: [^-1].
@@ -6655,7 +6666,7 @@ readFrom: aStream
 	decimalPosition isNil ifTrue: [decimalPosition := mantissaDigits].
 	exponent isNil ifTrue: [exponent := 0].
 
-	^(mantissa * sign) asFloat * (10 raisedToInteger: exponent + decimalPosition - mantissaDigits)! !
+	^(mantissa * sign) asFloat * (10.0 raisedToInteger: exponent + decimalPosition - mantissaDigits)! !
 
 ! Fraction methodsFor: 'accessing' !
 denominator
@@ -7574,6 +7585,11 @@ roundUp
 	ifFalse: [^self truncated + 1]! !
 
 ! Float methodsFor: 'arithmetic' !
+rounded
+
+	^self round! !
+
+! Float methodsFor: 'arithmetic' !
 sin
 
 	<primitive: 53>
@@ -7934,6 +7950,32 @@ write32: anInteger into: anArray startingAt: startingIndex
 		anArray at: index put: number // 16777216.
 		number := number \\ 16777216 * 256.
 		index := index + 1]! !
+
+! ScheduledTask methodsFor: 'accessing' !
+block
+
+	^block! !
+
+! ScheduledTask methodsFor: 'accessing' !
+block: anObject
+
+	block := anObject! !
+
+! ScheduledTask methodsFor: 'accessing' !
+time
+
+	^time! !
+
+! ScheduledTask methodsFor: 'accessing' !
+time: anObject
+
+	time := anObject! !
+
+! ScheduledTask methodsFor: 'running' !
+run
+
+	block value
+! !
 
 ! SequenceableCollection methodsFor: 'accessing' !
 at: aNumber ifAbsent: aBlock
@@ -8530,14 +8572,19 @@ removeFirst
 ! OrderedCollection methodsFor: 'adding and removing' !
 removeIndex: removeIndex
 
-	| index |
+	| index oldValue |
+
 	index := firstIndex - 1 + removeIndex.
+	oldValue := values at: index.
+
 	[index < lastIndex]
 		whileTrue: 
 			[values at: index put: (values at: index+ 1).
 			index := index+ 1].
 	values at: lastIndex put: nil.
-	lastIndex := lastIndex - 1! !
+	lastIndex := lastIndex - 1.
+	^oldValue
+	! !
 
 ! OrderedCollection methodsFor: 'adding and removing' !
 removeLast
@@ -9356,7 +9403,7 @@ initialize
 	self
 		handlers: OrderedCollection new;
 		running: true;
-		timeoutInterval: 5000;
+		timeoutInterval: 1000; "1000 microseconds"
 		yourself ! !
 
 ! SocketDispatcher methodsFor: 'polling' !
@@ -9396,12 +9443,14 @@ startPollLoop
 		| result |
 		result := self poll.
 		result = 0
-			ifTrue: [self timeoutHandler isNil ifFalse: [self timeoutHandler handle]]
+			ifTrue: [timeoutHandler isNil ifFalse: [timeoutHandler handle]]
 			ifFalse: [
 				result < 0 ifTrue: [^self error: 'poll loop error: ', result printString].
-				self revents keysAndValuesDo: [:index :value |
-					(value bitAnd: self POLLHUP) = self POLLHUP ifTrue: [(self handlers at: index) socket close. (self handlers at: index) closeIfNeeded].
-					(value bitAnd: self POLLIN) = self POLLIN ifTrue: [(self handlers at: index) handle] ] ] ]
+				1 to: revents size do: [:index |
+					| value |
+					value := revents at: index.
+					(value bitAnd: 16) = 16 ifTrue: [(handlers at: index) socket close. (handlers at: index) closeIfNeeded].
+					(value bitAnd: 1) = 1 ifTrue: [(handlers at: index) handle] ] ] ]
   ! !
 
 ! SocketHandler methodsFor: 'accessing' !
@@ -9566,20 +9615,36 @@ startupOn: aSocket
 		yourself
 		! !
 
-! SocketTimeoutHandler methodsFor: 'accessing' !
-timeoutBlock
+! SocketTimeoutHandler methodsFor: 'adding and removing' !
+addTask: aScheduledTask
 
-	^timeoutBlock! !
+	| index |
+	index := scheduledTasks findFirst: [:each | each time >= aScheduledTask time].
+	index = 0 ifTrue: [scheduledTasks add: aScheduledTask. ^self].
 
-! SocketTimeoutHandler methodsFor: 'accessing' !
-timeoutBlock: aBlock
-
-	timeoutBlock := aBlock! !
+	scheduledTasks add: aScheduledTask beforeIndex: index! !
 
 ! SocketTimeoutHandler methodsFor: 'handling' !
 handle
 
-	self timeoutBlock value! !
+	self runScheduledTasks! !
+
+! SocketTimeoutHandler methodsFor: 'handling' !
+runScheduledTasks
+
+	| task microsecondTime |
+	scheduledTasks isEmpty ifTrue: [^self].
+
+	microsecondTime := Time microsecondClockValue.
+	[scheduledTasks notEmpty and: [scheduledTasks first time <= microsecondTime]] whileTrue: [
+		task := scheduledTasks removeFirst.
+		task run]! !
+
+! SocketTimeoutHandler methodsFor: 'initializing' !
+initialize
+
+	super initialize.
+	scheduledTasks := OrderedCollection new! !
 
 ! SocketUIScreenHandler methodsFor: 'accessing' !
 commandHandler
@@ -9645,15 +9710,17 @@ webSocket: aWebSocket
 handle
 
 	self withMyUIScreenDo: [
-		| message |
+		| messages |
 		self socketState = #connecting ifTrue: [^self handleWebSocketConnection].
-		message := self webSocket readContentMessage.
-		message isNil
-			ifTrue: [self socket close]
-			ifFalse: [self processMessage: message]].
+		messages := OrderedCollection new.
+		[messages add: self webSocket readContentMessage. self webSocket hasCachedData] whileTrue: [].
+		messages do: [:message |
+			message isNil
+				ifTrue: [self socket close]
+				ifFalse: [self processMessage: message]]].
 
 	self closeIfNeeded
- ! !
+   ! !
 
 ! SocketUIScreenHandler methodsFor: 'handling' !
 handleWebSocketConnection
@@ -9662,7 +9729,11 @@ handleWebSocketConnection
 	self socketState: #connected.
 
 	(self startupReceiver notNil and: [self startupSelector notNil]) ifTrue: [
-		self withMyUIScreenDo: [self startupReceiver perform: self startupSelector]].
+		self withMyUIScreenDo: [
+			self startupReceiver perform: self startupSelector]].
+
+	self withMyUIScreenDo: [
+		BeagleSystem runJavaScript: 'document.getElementById("BeagleSmalltalkVersion").innerHTML = "Release: ', BeagleSystem releaseNumber, '";'].
 
 	self closeIfNeeded
 ! !
@@ -9700,7 +9771,8 @@ withMyUIScreenDo: aBlock
 	| oldScreen |
 	oldScreen := Smalltalk at: #CurrentScreen.
 	Smalltalk at: #CurrentScreen put: self uiScreen.
-	aBlock ensure: [Smalltalk at: #CurrentScreen put: oldScreen]
+	aBlock ensure: [
+		Smalltalk at: #CurrentScreen put: oldScreen]
  ! !
 
 ! SocketUIScreenHandler methodsFor: 'initializing' !
@@ -10333,6 +10405,11 @@ initialize
 	collection := ByteArray new! !
 
 ! SocketStream methodsFor: 'testing' !
+hasCachedData
+
+	^internalStream atEnd not  ! !
+
+! SocketStream methodsFor: 'testing' !
 isActive
 
 	^self socket isActive ! !
@@ -10584,6 +10661,11 @@ subStringFrom: i to: j
 withCRs
 
 	^self copyReplacing: $\ with: Character cr! !
+
+! String methodsFor: 'printing' !
+displayString
+
+	^self asString! !
 
 ! String methodsFor: 'printing' !
 printOn: aStream 
@@ -11096,6 +11178,22 @@ writeBinaryOn: aStream
 fromSeconds: aNumber
 
 	^(self new) setMilliseconds: aNumber * 1000; yourself! !
+
+! Time class methodsFor: 'instance creation' !
+microsecondClockValue
+
+	<primitive: 412>
+	^self! !
+
+! Time class methodsFor: 'instance creation' !
+microsecondsToRun: aBlock
+
+	| start end |
+	start := self microsecondClockValue.
+	aBlock value.
+	end := self microsecondClockValue.
+	^end - start
+! !
 
 ! Time class methodsFor: 'instance creation' !
 millisecondClockValue
@@ -11702,7 +11800,6 @@ readContentMessage
 
 	| header length mask payload payload2 |
 
-	stream reset.
 	header := stream next: 2.
 	header isNil ifTrue: [
 		^nil].
@@ -11718,7 +11815,7 @@ readContentMessage
 	payload := stream next: length.
 	payload2 := self xorPayload: payload copy withMask: mask.
 
-	^payload2 asString! !
+	^payload2 asString ! !
 
 ! WebSocket methodsFor: 'accessing' !
 send: aString
@@ -11984,6 +12081,11 @@ startupConnection
 ! !
 
 ! WebSocket methodsFor: 'testing' !
+hasCachedData
+
+	^stream hasCachedData ! !
+
+! WebSocket methodsFor: 'testing' !
 isActive
 
 	^self socket notNil and: [self socket isActive]! !
@@ -12082,17 +12184,17 @@ tab
 
 	self nextPut: Character tab! !
 
-KitManager default currentKit allDefinedClasses: #(Array ArrayedCollection Association Base64Encoder BeagleSystem Behavior BlockClosure Boolean ByteArray ByteString ByteSymbol CachedValue Character Class ClassCreator ClassDescription Collection CompiledBlock CompiledCode CompiledMethod ComputedField DateTime Dictionary Doit Error EventBase Exception ExceptionBase ExceptionHandler ExceptionList False FileStream Filename Float Fraction HaltException IdentityDictionary Integer IntegerArray InternalStream JunkClass Kit KitManager LargeInteger LargeNegativeInteger LargePositiveInteger LimitedPrecisionReal LineEndConvention LineEndConventionCR LineEndConventionCRLF LineEndConventionLF Magnitude Matrix MemorySpace MessageNotUnderstood Metaclass MethodDictionary Number OSHandle Object OrderedCollection Point PrimitiveFailedError Random ReadStream ReadWriteStream SHA1 SequenceableCollection Set SmallInteger Socket SocketAcceptHandler SocketDispatcher SocketHandler SocketLauncher SocketStream SocketTimeoutHandler SocketUIScreenHandler Sorter Stream String StringMatcher Symbol Time True TwoByteString TwoByteSymbol UndefinedObject UninterpretedBytes Vector Warning WebSocket WriteStream) andMethods: #() !
+KitManager default currentKit allDefinedClasses: #(Array ArrayedCollection Association Base64Encoder BeagleSystem Behavior BlockClosure Boolean ByteArray ByteString ByteSymbol CachedValue Character Class ClassCreator ClassDescription Collection CompiledBlock CompiledCode CompiledMethod ComputedField DateTime Dictionary Doit Error EventBase Exception ExceptionBase ExceptionHandler ExceptionList False FileStream Filename Float Fraction HaltException IdentityDictionary Integer IntegerArray InternalStream JunkClass Kit KitManager LargeInteger LargeNegativeInteger LargePositiveInteger LimitedPrecisionReal LineEndConvention LineEndConventionCR LineEndConventionCRLF LineEndConventionLF Magnitude Matrix MemorySpace MessageNotUnderstood Metaclass MethodDictionary Number OSHandle Object OrderedCollection Point PrimitiveFailedError Random ReadStream ReadWriteStream SHA1 ScheduledTask SequenceableCollection Set SmallInteger Socket SocketAcceptHandler SocketDispatcher SocketHandler SocketLauncher SocketStream SocketTimeoutHandler SocketUIScreenHandler Sorter Stream String StringMatcher Symbol Time True TwoByteString TwoByteSymbol UndefinedObject UninterpretedBytes Vector Warning WebSocket WriteStream) andMethods: #() !
 
 KitManager default currentKit allDefinedMethodsFor: BeagleSystem methods: #() !
 
-KitManager default currentKit allDefinedMethodsFor: BeagleSystem class methods: #(#allClasses #auditImage #badMetaclasses #becomeSystem #changesFile #changesFileName #checkClasses #checkClassesReferences #checkGlobals #checkKits #checkSystem #cleanupOrganizations #clearCurrent #clearSources #clearUndeclared #closeSourceFiles #current #fileinAllClasses #fileoutAllClasses #'findBytecodeSequence:inCompiledCode:into:' #'findBytecodeSequence:inMethod:into:' #'findBytecodeSequence:inMethodsOfClass:into:' #'findBytecodeSequence:inMethodsOfClassOrSubclasses:into:' #finish #fixBadMetaclasses #fixClassReferences #'fixClassReferencesIn:' #'getSource:' #'gettersOfInstanceVariable:inClass:' #'gettersOfInstanceVariable:inClass:into:' #globalGarbageCollect #imageName #'imageName:' #imageNameNoExtension #'implementersOf:' #isEmscripten #'log:' #'logObject:' #'matchesBytecodeInfo:with:' #methodsWithNoSources #new #openSourceFiles #'primSaveImage:' #'primitiveLog:' #reallocateObjectSpaces #'reallocateSpace:size:' #'referencesToAssociation:' #'referencesToClass:' #'referencesToInstanceVariable:inClass:' #'referencesToUndeclared:' #'runJavaScript:' #'runJavaScriptWithReturn:' #saveImage #'saveImage:' #'sendersOf:' #'settersOfInstanceVariable:inClass:' #'settersOfInstanceVariable:inClass:into:' #shutdown #sourceFileName #sourceFileNames #'sourceFileNames:' #sourceFiles #'sourceFiles:' #sourcesFile #sourcesFileName #spaceSize16 #specialSelectors #'specialSelectors:' #start #startAcceptSocket #webSocketPortNumber #'wellKnownAt:' #'wellKnownAt:put:' #wellKnownSize #writeAllFiles) !
+KitManager default currentKit allDefinedMethodsFor: BeagleSystem class methods: #(#allClasses #auditImage #badMetaclasses #becomeSystem #changesFile #changesFileName #checkClasses #checkClassesReferences #checkGlobals #checkKits #checkSystem #cleanupOrganizations #clearCurrent #clearSources #clearUndeclared #closeSourceFiles #current #fileinAllClasses #fileoutAllClasses #'findBytecodeSequence:inCompiledCode:into:' #'findBytecodeSequence:inMethod:into:' #'findBytecodeSequence:inMethodsOfClass:into:' #'findBytecodeSequence:inMethodsOfClassOrSubclasses:into:' #finish #fixBadMetaclasses #fixClassReferences #'fixClassReferencesIn:' #'getSource:' #'gettersOfInstanceVariable:inClass:' #'gettersOfInstanceVariable:inClass:into:' #globalGarbageCollect #imageName #'imageName:' #imageNameNoExtension #'implementersOf:' #isEmscripten #'log:' #'logObject:' #'matchesBytecodeInfo:with:' #methodsWithNoSources #new #openSourceFiles #'primSaveImage:' #'primitiveLog:' #reallocateObjectSpaces #'reallocateSpace:size:' #'referencesToAssociation:' #'referencesToClass:' #'referencesToInstanceVariable:inClass:' #'referencesToUndeclared:' #releaseNumber #'runJavaScript:' #'runJavaScriptWithReturn:' #saveImage #'saveImage:' #'sendersOf:' #'settersOfInstanceVariable:inClass:' #'settersOfInstanceVariable:inClass:into:' #shutdown #sourceFileName #sourceFileNames #'sourceFileNames:' #sourceFiles #'sourceFiles:' #sourcesFile #sourcesFileName #spaceSize16 #specialSelectors #'specialSelectors:' #start #startAcceptSocket #webSocketPortNumber #'wellKnownAt:' #'wellKnownAt:put:' #wellKnownSize #writeAllFiles) !
 
 KitManager default currentKit allDefinedMethodsFor: Behavior methods: #(#allInstVarNames #'allInstVarNamesInto:' #allInstances #allSubclasses #'allSubclassesInto:' #basicNew #'basicNew:' #'basicRemoveSubclass:' #'canUnderstand:' #'compiledMethodAt:' #'fileoutMethodNamed:on:' #'fileoutMethodsOn:' #'fileoutMethodsOn:forKit:' #flags #'flags:' #globalDictionaries #'inheritsFrom:' #initialize #instSize #'instVarNameForIndex:' #instVarNames #'instVarNames:' #methodDictionary #'methodDictionary:' #new #'new:' #'removeSelector:' #selectors #subclasses #'subclasses:' #superclass #'superclass:' #withAllSubclasses #'withAllSubclassesInto:' #withAllSuperclasses #'withAllSuperclassesInto:') !
 
 KitManager default currentKit allDefinedMethodsFor: Behavior class methods: #(#new) !
 
-KitManager default currentKit allDefinedMethodsFor: BlockClosure methods: #(#allNestedLiterals #bytecodes #cache #copiedValues #'copiedValues:' #'cull:' #'cull:cull:' #'cull:cull:cull:' #'ensure:' #isBlock #isBlockClosure #method #'method:' #methodContext #'methodContext:' #numberOfArguments #'on:do:' #value #'value:' #'value:value:' #whileFalse #'whileFalse:' #whileTrue #'whileTrue:') !
+KitManager default currentKit allDefinedMethodsFor: BlockClosure methods: #(#allNestedLiterals #bytecodes #cache #copiedValues #'copiedValues:' #'cull:' #'cull:cull:' #'cull:cull:cull:' #'ensure:' #isBlock #isBlockClosure #method #'method:' #methodContext #'methodContext:' #numberOfArguments #'on:do:' #'runInMicroseconds:' #'runInMilliseconds:' #value #'value:' #'value:value:' #whileFalse #'whileFalse:' #whileTrue #'whileTrue:') !
 
 KitManager default currentKit allDefinedMethodsFor: BlockClosure class methods: #() !
 
@@ -12156,7 +12258,7 @@ KitManager default currentKit allDefinedMethodsFor: Filename methods: #(#'/' #'\
 
 KitManager default currentKit allDefinedMethodsFor: Filename class methods: #(#'fileExists:' #getInternalPath #internalPath #'named:' #pathDelimiterString #'rename:to:' #'sizeOfFile:' #'unpackAssetToInternalPath:') !
 
-KitManager default currentKit allDefinedMethodsFor: Float methods: #(#'arcTan2:' #arccos #arcsin #arctan #asFloat #asInteger #'basicAt:' #basicSize #'coerceFloat:' #'coerceFraction:' #'coerceLargeInteger:' #'coerceSmallInteger:' #'coerceTo:' #cos #decimalDigitsOfPrecision #exp #fractionPart #isFloat #kind #ln #log #'mod:' #'primitiveDivide:' #'primitiveEqualTo:' #'primitiveGreaterThan:' #'primitiveGreaterThanOrEqualTo:' #'primitiveLessThan:' #'primitiveLessThanOrEqualTo:' #'primitiveMinus:' #'primitiveNotEqualTo:' #'primitivePlus:' #'primitiveTimes:' #'raisedToNegativeInteger:' #round #roundUp #sin #sqrt #tan #truncated) !
+KitManager default currentKit allDefinedMethodsFor: Float methods: #(#'arcTan2:' #arccos #arcsin #arctan #asFloat #asInteger #'basicAt:' #basicSize #'coerceFloat:' #'coerceFraction:' #'coerceLargeInteger:' #'coerceSmallInteger:' #'coerceTo:' #cos #decimalDigitsOfPrecision #exp #fractionPart #isFloat #kind #ln #log #'mod:' #'primitiveDivide:' #'primitiveEqualTo:' #'primitiveGreaterThan:' #'primitiveGreaterThanOrEqualTo:' #'primitiveLessThan:' #'primitiveLessThanOrEqualTo:' #'primitiveMinus:' #'primitiveNotEqualTo:' #'primitivePlus:' #'primitiveTimes:' #'raisedToNegativeInteger:' #round #roundUp #rounded #sin #sqrt #tan #truncated) !
 
 KitManager default currentKit allDefinedMethodsFor: Float class methods: #(#e #new #pi #unity #zero) !
 
@@ -12212,7 +12314,7 @@ KitManager default currentKit allDefinedMethodsFor: Metaclass methods: #(#classD
 
 KitManager default currentKit allDefinedMethodsFor: Metaclass class methods: #() !
 
-KitManager default currentKit allDefinedMethodsFor: Number methods: #(#'*' #'+' #'-' #'/' #'//' #'<' #'<=' #'=' #'>' #'>=' #'@' #abs #arccos #arcsin #'coerceTo:' #cos #cosh #cot #coth #csc #csch #degreesToRadians #exp #hash #isNumber #isZero #'jsonOn:' #kind #ln #log #negated #negative #positive #'quo:' #radiansToDegrees #'raisedTo:' #'raisedToInteger:' #'raisedToNegativeInteger:' #reciprocal #'rem:' #sec #sech #sign #sin #sinh #sqrt #squared #tan #tanh #'to:by:do:' #'to:do:' #'~=') !
+KitManager default currentKit allDefinedMethodsFor: Number methods: #(#'*' #'+' #'-' #'/' #'//' #'<' #'<=' #'=' #'>' #'>=' #'@' #abs #arccos #arcsin #'coerceTo:' #cos #cosh #cot #coth #csc #csch #degreesToRadians #exp #hash #isNumber #isZero #'jsonOn:' #kind #ln #log #negated #negative #positive #'quo:' #radiansToDegrees #'raisedTo:' #'raisedToInteger:' #'raisedToNegativeInteger:' #reciprocal #'rem:' #rounded #sec #sech #sign #sin #sinh #sqrt #squared #tan #tanh #'to:by:do:' #'to:do:' #'~=') !
 
 KitManager default currentKit allDefinedMethodsFor: Number class methods: #(#'readFrom:') !
 
@@ -12256,17 +12358,13 @@ KitManager default currentKit allDefinedMethodsFor: SocketLauncher methods: #(#c
 
 KitManager default currentKit allDefinedMethodsFor: SocketLauncher class methods: #() !
 
-KitManager default currentKit allDefinedMethodsFor: SocketTimeoutHandler methods: #(#handle #timeoutBlock #'timeoutBlock:') !
-
-KitManager default currentKit allDefinedMethodsFor: SocketTimeoutHandler class methods: #() !
-
 KitManager default currentKit allDefinedMethodsFor: SocketUIScreenHandler methods: #(#commandHandler #'commandHandler:' #handle #handleWebSocketConnection #initialize #'processMessage:' #socketState #'socketState:' #startup #startupReceiver #'startupReceiver:' #startupSelector #'startupSelector:' #uiScreen #'uiScreen:' #webSocket #'webSocket:' #'withMyUIScreenDo:') !
 
 KitManager default currentKit allDefinedMethodsFor: SocketUIScreenHandler class methods: #() !
 
 KitManager default currentKit allDefinedMethodsFor: Time methods: #(#'-' #'<' #'<=' #'>' #'>=' #hours #milliseconds #'milliseconds:' #minutes #'printOn:' #seconds #'setMilliseconds:' #showHourlyCountdown #totalHours #totalMilliseconds #totalMinutes #totalSeconds #'writeBinaryOn:') !
 
-KitManager default currentKit allDefinedMethodsFor: Time class methods: #(#'fromSeconds:' #millisecondClockValue #'millisecondsToRun:' #now #'readBinaryFrom:') !
+KitManager default currentKit allDefinedMethodsFor: Time class methods: #(#'fromSeconds:' #microsecondClockValue #'microsecondsToRun:' #millisecondClockValue #'millisecondsToRun:' #now #'readBinaryFrom:') !
 
 KitManager default currentKit allDefinedMethodsFor: True methods: #(#'&' #'and:' #'ifFalse:' #'ifFalse:ifTrue:' #'ifTrue:' #'ifTrue:ifFalse:' #not #'or:' #'printOn:' #'|') !
 
@@ -12280,7 +12378,7 @@ KitManager default currentKit allDefinedMethodsFor: Warning methods: #() !
 
 KitManager default currentKit allDefinedMethodsFor: Warning class methods: #() !
 
-KitManager default currentKit allDefinedMethodsFor: WebSocket methods: #(#close #isActive #isConnecting #'isConnecting:' #'lengthFor:' #mask #'onMessageReceive:do:' #'onMessageReceiveDo:' #'openClientFor:onPort:' #'openClientOnPort:' #'openOnPort:' #'openServerOnPort:' #processClientMessages #processConnectionMessage #processContentMessage #'processContentMessage:' #'processMessage:' #processMessages #processServerMessages #'processSocketClientConnectMessage:keyString:' #'processSocketConnectMessage:' #'processSocketServerConnectMessage:' #processWebSocketClientMessages #processWebSocketMessages #processWebSocketServerMessages #random #'random:' #readAndProcessMessages #readConnectionMessage #readContentMessage #'send:' #sendClientConnectMessage #socket #'socket:' #startupConnection #stream #'stream:' #'xorPayload:withMask:') !
+KitManager default currentKit allDefinedMethodsFor: WebSocket methods: #(#close #hasCachedData #isActive #isConnecting #'isConnecting:' #'lengthFor:' #mask #'onMessageReceive:do:' #'onMessageReceiveDo:' #'openClientFor:onPort:' #'openClientOnPort:' #'openOnPort:' #'openServerOnPort:' #processClientMessages #processConnectionMessage #processContentMessage #'processContentMessage:' #'processMessage:' #processMessages #processServerMessages #'processSocketClientConnectMessage:keyString:' #'processSocketConnectMessage:' #'processSocketServerConnectMessage:' #processWebSocketClientMessages #processWebSocketMessages #processWebSocketServerMessages #random #'random:' #readAndProcessMessages #readConnectionMessage #readContentMessage #'send:' #sendClientConnectMessage #socket #'socket:' #startupConnection #stream #'stream:' #'xorPayload:withMask:') !
 
 KitManager default currentKit allDefinedMethodsFor: WebSocket class methods: #() !
 
@@ -12404,7 +12502,7 @@ KitManager default currentKit allDefinedMethodsFor: Set methods: #(#'add:' #'add
 
 KitManager default currentKit allDefinedMethodsFor: Set class methods: #(#new #'new:') !
 
-KitManager default currentKit allDefinedMethodsFor: SocketStream methods: #(#atEnd #bufferSize #commit #initialize #isActive #next #'nextPut:' #peek #read #reset #socket #'socket:') !
+KitManager default currentKit allDefinedMethodsFor: SocketStream methods: #(#atEnd #bufferSize #commit #hasCachedData #initialize #isActive #next #'nextPut:' #peek #read #reset #socket #'socket:') !
 
 KitManager default currentKit allDefinedMethodsFor: SocketStream class methods: #(#'on:') !
 
@@ -12416,7 +12514,7 @@ KitManager default currentKit allDefinedMethodsFor: Stream methods: #(#position 
 
 KitManager default currentKit allDefinedMethodsFor: Stream class methods: #() !
 
-KitManager default currentKit allDefinedMethodsFor: String methods: #(#'<' #'<=' #'>' #'>=' #asByteArray #asFilename #asLowercase #asSimtalkString #asString #asSymbol #asUppercase #capitalized #'compareString:' #'convertLineEndingsTo2:' #'convertLineEndingsTo:' #crToCRLF #crToLF #'extractUTF8CharacterFrom:' #isString #'jsonOn:' #lfToCR #'match:ignoreCase:' #'matches:' #'printOn:' #'printPrefixOn:' #'printSuffixOn:' #'splitBy:' #'storeOn:' #'subStringFrom:to:' #'tokensBasedOn:' #trimSeparators #utf8Decode #withCRs) !
+KitManager default currentKit allDefinedMethodsFor: String methods: #(#'<' #'<=' #'>' #'>=' #asByteArray #asFilename #asLowercase #asSimtalkString #asString #asSymbol #asUppercase #capitalized #'compareString:' #'convertLineEndingsTo2:' #'convertLineEndingsTo:' #crToCRLF #crToLF #displayString #'extractUTF8CharacterFrom:' #isString #'jsonOn:' #lfToCR #'match:ignoreCase:' #'matches:' #'printOn:' #'printPrefixOn:' #'printSuffixOn:' #'splitBy:' #'storeOn:' #'subStringFrom:to:' #'tokensBasedOn:' #trimSeparators #utf8Decode #withCRs) !
 
 KitManager default currentKit allDefinedMethodsFor: String class methods: #(#implementationClass #'new:') !
 
@@ -12448,12 +12546,20 @@ KitManager default currentKit allDefinedMethodsFor: WriteStream methods: #(#'at:
 
 KitManager default currentKit allDefinedMethodsFor: WriteStream class methods: #() !
 
-KitManager default currentKit allDefinedMethodsFor: JunkClass methods: #(#ifFalseIfTrueTest #ifFalseReturnTest #ifFalseTest #ifTrueIfFalseTest #initialize #junkMethod #junkMethod10 #junkMethod2 #junkMethod3 #junkMethod4 #junkMethod5 #junkMethod6 #junkMethod7 #junkMethod8 #'method2:' #nonLocalReturn #nonLocalReturnA #'nonLocalReturnB:' #nonLocalReturnC) !
-
-KitManager default currentKit allDefinedMethodsFor: JunkClass class methods: #(#classVar1Variable) !
-
 KitManager default currentKit allDefinedMethodsFor: CachedValue methods: #(#block #'block:' #resetValue #value #'value:') !
 
 KitManager default currentKit allDefinedMethodsFor: CachedValue class methods: #(#'block:') !
+
+KitManager default currentKit allDefinedMethodsFor: SocketTimeoutHandler methods: #(#'addTask:' #handle #initialize #runScheduledTasks) !
+
+KitManager default currentKit allDefinedMethodsFor: SocketTimeoutHandler class methods: #() !
+
+KitManager default currentKit allDefinedMethodsFor: ScheduledTask methods: #(#block #'block:' #run #time #'time:') !
+
+KitManager default currentKit allDefinedMethodsFor: ScheduledTask class methods: #() !
+
+KitManager default currentKit allDefinedMethodsFor: JunkClass methods: #(#ifFalseIfTrueTest #ifFalseReturnTest #ifFalseTest #ifTrueIfFalseTest #initialize #junkMethod #junkMethod10 #junkMethod2 #junkMethod3 #junkMethod4 #junkMethod5 #junkMethod6 #junkMethod7 #junkMethod8 #'method2:' #nonLocalReturn #nonLocalReturnA #'nonLocalReturnB:' #nonLocalReturnC) !
+
+KitManager default currentKit allDefinedMethodsFor: JunkClass class methods: #(#classVar1Variable) !
 
 KitManager default finishFileinKit !

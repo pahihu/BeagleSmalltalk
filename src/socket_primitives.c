@@ -11,6 +11,7 @@
 #include <unistd.h>
 #include <sys/ioctl.h>
 #include <sys/socket.h>
+#include <signal.h>
 #include <poll.h>
 #include <netinet/in.h>
 #include <arpa/inet.h>
@@ -372,15 +373,18 @@ struct pollfd fds[256];
 // Return:
 // 0: socket changes
 // 1: timeout
-
+			   
 void primSocketPoll()
 {
 	int i, pollResult;
+	uint64_t cTimeout;
 	oop receiver = getReceiver();
 	oop handles = getLocal(0);
 	oop events = getLocal(1);
 	oop revents = getLocal(2);
 	oop timeout = getLocal(3);
+	sigset_t sigmask;
+	struct timespec tmo_p;
 
 	if (!isArray(handles) || !isArray(events) || !isArray(revents) || !isSmallInteger(timeout))
 		PRIMITIVE_FAIL(1);
@@ -400,7 +404,13 @@ void primSocketPoll()
 		fds[i].revents = stIntToC(indexedVarAtInt(revents, i+1));
 	}
 
-	pollResult = poll (fds, indexedObjectSize(handles), stIntToC(timeout));
+	cTimeout = stIntToC(timeout);
+	tmo_p.tv_sec = cTimeout / 1000000;
+	tmo_p.tv_nsec = (cTimeout % 1000000) * 1000;
+
+	sigemptyset(&sigmask);
+
+	pollResult = ppoll (fds, indexedObjectSize(handles), &tmo_p, &sigmask);
 
 	for (i=0; i<indexedObjectSize(handles); i++) {
 		indexedVarAtIntPut(events, i+1, cIntToST(fds[i].events));

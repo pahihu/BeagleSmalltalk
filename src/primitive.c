@@ -39,6 +39,7 @@
 #define PRIM_LOG 406
 #define PRIM_HALT 407
 #define PRIM_MILLISECONDS 408
+#define PRIM_MICROSECONDS 412
 #define PRIM_FINISH 409
 #define PRIM_INST_VAR_AT 420
 #define PRIM_INST_VAR_AT_PUT 421
@@ -414,15 +415,25 @@ void primHalt()
 
 void primMilliseconds()
 {
-	struct timeval tv;
-	unsigned long result;
+	struct timespec ts_current;
+	uint64_t result;
 
-	gettimeofday(&tv, NULL);
-	result = (tv.tv_sec & 0x7FFFFFFFF) * 1000 + tv.tv_usec / 1000;
+	clock_gettime(CLOCK_MONOTONIC, &ts_current);
+	result = ts_current.tv_sec * 1000ull + ts_current.tv_nsec / 1000000ull;
 	push (cIntToST(0));
 	push (cIntToST(result));
 }
 
+void primMicroseconds()
+{
+	struct timespec ts_current;
+	uint64_t result;
+
+	clock_gettime(CLOCK_MONOTONIC, &ts_current);
+	result = ts_current.tv_sec * 1000000ull + ts_current.tv_nsec / 1000ull;
+	push (cIntToST(0));
+	push (cIntToST(result));
+}
 
 void primFinish()
 {
@@ -979,6 +990,7 @@ void initializePrimitiveTable()
 	primitiveTable[PRIM_LOG] = primLog;
 	primitiveTable[PRIM_HALT] = primHalt;
 	primitiveTable[PRIM_MILLISECONDS] = primMilliseconds;
+	primitiveTable[PRIM_MICROSECONDS] = primMicroseconds;
 	primitiveTable[PRIM_FINISH] = primFinish;
 	primitiveTable[PRIM_INST_VAR_AT] = primInstVarAt;
 	primitiveTable[PRIM_INST_VAR_AT_PUT] = primInstVarAtPut;

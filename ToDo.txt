@@ -1,0 +1,40 @@
+To do:
+
+- Implement a Transcript
+- Move fileout code to CompiledMethod class and get it to output the kit assigning code when needed
+- Fix walkbacks - main class is sometimes wrong when debugging in a block
+- Integrate image with Git
+- Better Unicode support
+- Need more seamless CR/LF handling
+
+LOW - Implement sub-kits
+LOW - Proceed in Debugger
+LOW - Add up and down triangles to methods for "implemented in superclass/subclass"
+LOW - Write a change recovery tool
+LOW - Change push/pop in primitives to LOCALS
+LOW - Add icons to Kits, classes, protocols and methods
+LOW - Add Remove menu item to Dictionary inspector
+
+DONE - Add Debug button to test suite window
+DONE - Fix "delete method" from implementers window
+DONE - Fix Float printOn: for numbers with exponents - prints 0 as the digit before the decimal point
+DONE - Remove transparency from popup dialogs
+DONE - Enable CR for popup message requestors
+DONE - Get control keys working as shortcuts for Save, Print, etc.
+DONE - Fileout sources / Filein Sources should work on kits, not classes
+DONE - Handle difference between / and \ in filenames
+DONE - Get compile errors to show up directly rather than opening a debugger
+DONE - Don't write to the change log when recompiling methods due to a class change
+DONE - Debugger - self inspector shows block, not receiver
+DONE - Implement resume for exceptions
+DONE - Fix Undeclared to show a warning message in the browser
+DONE - Debugger - restart sometimes doesn't work
+DONE - Debugger - Save method in debugger sometimes doesn't work
+DONE - Browser - show when methods belong to other kits
+DONE - Browser - method menu item "Move to Kit"
+DONE - Debugger - simulator sometimes fails on block local variables
+DONE - Ability to close orphaned windows
+DONE - Implement a proper unload kit
+DONE - Kits should show method extensions
+DONE - Global Senders/Implementers/References
+DONE - Windows - fix resizing when there are fixed-height components

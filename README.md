@@ -1,4 +1,5 @@
 Beagle Smalltalk
+Version 1.1
 
 Copyright 2025 Simberon Incorporated
 
@@ -37,7 +38,7 @@ Windows:
 
  	- Run with:   ./beagle.exe beagle.im
 
- 	- Open the file BeagleUI.hml in a web browser
+ 	- Open the file BeagleUI.html in a web browser
 
  	- To run outside of cygwin, copy cygwin1.dll to a folder called lib
 
@@ -47,9 +48,11 @@ Linux:
 
  	- Create a directory for BeagleSmalltalk and cd to it
 
+	- Make sure you have gcc c++ and make installed
+
  	- Type make
 
  	- Run with:   ./beagle beagle.im
 
- 	- Open the file BeagleUI.hml in a web browser
+ 	- Open the file BeagleUI.html in a web browser
 

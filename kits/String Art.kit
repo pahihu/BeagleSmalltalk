@@ -1,0 +1,1296 @@
+KitManager default currentKitNamed: 'String Art' !
+
+KitManager default currentKit ensureLoaded: #('Canvas Window') !
+
+Object subclassNamed: #Pin
+	instVarNames: 'number radius location label fillColor lineColor labelColor labelFont labelOffset visible'
+	classInstVarNames: ''
+	environment: Object systemDictionary
+	kitName: 'String Art' !
+
+Object subclassNamed: #PinBoard
+	instVarNames: 'pins strings polygons currentPin currentStringColor currentPolygon'
+	classInstVarNames: ''
+	environment: Object systemDictionary
+	kitName: 'String Art' !
+
+Object subclassNamed: #PinPolygon
+	instVarNames: 'vertices color'
+	classInstVarNames: ''
+	environment: Object systemDictionary
+	kitName: 'String Art' !
+
+Object subclassNamed: #PinString
+	instVarNames: 'startPin endPin color'
+	classInstVarNames: ''
+	environment: Object systemDictionary
+	kitName: 'String Art' !
+
+CanvasWindow subclassNamed: #StringArtWindow
+	instVarNames: 'pins currentPin board currentResult'
+	classInstVarNames: ''
+	environment: Object systemDictionary
+	kitName: 'String Art' !
+
+! Pin methodsFor: 'accessing' !
+fillColor
+
+	^fillColor ! !
+
+! Pin methodsFor: 'accessing' !
+fillColor: aString
+
+	fillColor := aString ! !
+
+! Pin methodsFor: 'accessing' !
+label
+
+	^label ! !
+
+! Pin methodsFor: 'accessing' !
+label: aString
+
+	label := aString ! !
+
+! Pin methodsFor: 'accessing' !
+labelColor
+
+	^labelColor! !
+
+! Pin methodsFor: 'accessing' !
+labelColor: aString
+
+	labelColor := aString ! !
+
+! Pin methodsFor: 'accessing' !
+labelFont
+
+	^labelFont ! !
+
+! Pin methodsFor: 'accessing' !
+labelFont: aString
+
+	labelFont := aString ! !
+
+! Pin methodsFor: 'accessing' !
+labelOffset
+
+	^labelOffset ! !
+
+! Pin methodsFor: 'accessing' !
+labelOffset: aPoint
+
+	labelOffset := aPoint ! !
+
+! Pin methodsFor: 'accessing' !
+lineColor
+
+	^lineColor ! !
+
+! Pin methodsFor: 'accessing' !
+lineColor: aString
+
+	lineColor := aString ! !
+
+! Pin methodsFor: 'accessing' !
+location
+
+	^location! !
+
+! Pin methodsFor: 'accessing' !
+location: aPoint
+
+	location := aPoint! !
+
+! Pin methodsFor: 'accessing' !
+number
+
+	^number ! !
+
+! Pin methodsFor: 'accessing' !
+number: aNumber
+
+	number := aNumber ! !
+
+! Pin methodsFor: 'accessing' !
+radius
+
+	^radius ! !
+
+! Pin methodsFor: 'accessing' !
+radius: aNumber
+
+	radius := aNumber ! !
+
+! Pin methodsFor: 'accessing' !
+visible
+
+	^visible ! !
+
+! Pin methodsFor: 'accessing' !
+visible: aBoolean
+
+	visible := aBoolean ! !
+
+! Pin methodsFor: 'displaying' !
+displayLabelOn: aPen
+
+	self label isNil ifTrue: [^self].
+
+	aPen
+		fillStyle: self labelColor;
+		font: self labelFont;
+		drawText: self label at: self location + self labelOffset 
+! !
+
+! Pin methodsFor: 'displaying' !
+displayOn: aPen
+
+	self
+		displayPinOn: aPen;
+		displayLabelOn: aPen! !
+
+! Pin methodsFor: 'displaying' !
+displayPinOn: aPen
+
+	self visible ifFalse: [^self].
+
+	aPen
+		fillStyle: self fillColor;
+		drawFilledCircleRadius: self radius at: self location;
+		strokeStyle: self lineColor;
+		drawCircleRadius: self radius at: self location.
+ ! !
+
+! Pin methodsFor: 'initializing' !
+initialize
+
+	self
+		lineColor: 'black';
+		fillColor: 'black';
+		labelColor: 'black';
+		radius: 1;
+		labelFont: '10px Arial';
+		labelOffset: 0 @ 0;
+		label: nil;
+		visible: true ! !
+
+! Pin methodsFor: 'printing' !
+printOn: aStream
+
+	aStream nextPutAll: 'pin-', self number printString! !
+
+! Pin class methodsFor: 'instance creation' !
+new
+
+	^super new initialize; yourself! !
+
+! PinBoard methodsFor: 'accessing' !
+color: aString
+
+	self currentStringColor: aString ! !
+
+! PinBoard methodsFor: 'accessing' !
+currentPin
+
+	^currentPin! !
+
+! PinBoard methodsFor: 'accessing' !
+currentPin: aPin
+
+	currentPin := aPin! !
+
+! PinBoard methodsFor: 'accessing' !
+currentPolygon
+
+	^currentPolygon ! !
+
+! PinBoard methodsFor: 'accessing' !
+currentPolygon: aCollection
+
+	currentPolygon := aCollection ! !
+
+! PinBoard methodsFor: 'accessing' !
+currentStringColor
+
+	^currentStringColor! !
+
+! PinBoard methodsFor: 'accessing' !
+currentStringColor: aString
+
+	currentStringColor := aString! !
+
+! PinBoard methodsFor: 'accessing' !
+pins
+
+	^pins! !
+
+! PinBoard methodsFor: 'accessing' !
+pins: aCollection
+
+	pins := aCollection! !
+
+! PinBoard methodsFor: 'accessing' !
+polygonColor: aColor
+
+	self currentPolygon isNil ifTrue: [^self].
+	self currentPolygon color: aColor
+
+! !
+
+! PinBoard methodsFor: 'accessing' !
+polygons
+
+	^polygons! !
+
+! PinBoard methodsFor: 'accessing' !
+polygons: aCollection
+
+	polygons := aCollection! !
+
+! PinBoard methodsFor: 'accessing' !
+strings
+
+	^strings! !
+
+! PinBoard methodsFor: 'accessing' !
+strings: aCollection
+
+	strings := aCollection! !
+
+! PinBoard methodsFor: 'adding and removing' !
+addPinAt: aPoint
+
+	| pin |
+
+	self pins add: (pin := Pin new
+		location: aPoint;
+		number: self pins size + 1;
+		yourself).
+
+	^pin ! !
+
+! PinBoard methodsFor: 'adding and removing' !
+clear
+
+	self clearPins! !
+
+! PinBoard methodsFor: 'adding and removing' !
+clearPins
+
+	self
+		pins: OrderedCollection new;
+		clearStrings;
+		currentPin: nil
+! !
+
+! PinBoard methodsFor: 'adding and removing' !
+clearPolygons
+
+	self polygons: OrderedCollection new! !
+
+! PinBoard methodsFor: 'adding and removing' !
+clearStrings
+
+	self
+		strings: OrderedCollection new;
+		currentStringColor: 'black';
+		clearPolygons! !
+
+! PinBoard methodsFor: 'adding and removing' !
+pinAt: aNumber
+
+	^self pins at: ((aNumber - 1) \\ pins size) + 1! !
+
+! PinBoard methodsFor: 'drawing' !
+beginPolygon
+
+	self currentPolygon: PinPolygon new ! !
+
+! PinBoard methodsFor: 'drawing' !
+black
+
+	self color: 'black'! !
+
+! PinBoard methodsFor: 'drawing' !
+blue
+
+	self color: 'blue'! !
+
+! PinBoard methodsFor: 'drawing' !
+displayOn: aPen
+
+	self pins do: [:pin | pin displayOn: aPen].
+	self strings do: [:string | string displayOn: aPen].
+	self polygons do: [:polygon | polygon displayOn: aPen].
+
+ ! !
+
+! PinBoard methodsFor: 'drawing' !
+endPolygon
+
+	self currentPolygon isNil ifTrue: [^self].
+	self polygons add: self currentPolygon.
+	self currentPolygon: nil! !
+
+! PinBoard methodsFor: 'drawing' !
+gray
+
+	self color: 'gray'! !
+
+! PinBoard methodsFor: 'drawing' !
+green
+
+	self color: 'green'! !
+
+! PinBoard methodsFor: 'drawing' !
+lineToPin: pinNumber
+
+	| nextPin |
+	self currentPin isNil ifTrue: [^self].
+
+	nextPin := self pinAt: pinNumber.
+	self strings add: (PinString new
+		startPin: self currentPin;
+		endPin: nextPin;
+		color: self currentStringColor;
+		yourself).
+
+	self currentPin: nextPin.
+	self currentPolygon notNil ifTrue: [currentPolygon moveToPin: self currentPin].
+
+! !
+
+! PinBoard methodsFor: 'drawing' !
+moveToPin: pinNumber
+
+	self currentPin: (self pinAt: pinNumber).
+	self currentPolygon notNil ifTrue: [currentPolygon moveToPin: self currentPin] ! !
+
+! PinBoard methodsFor: 'drawing' !
+red
+
+	self color: 'red'! !
+
+! PinBoard methodsFor: 'drawing' !
+yellow
+
+	self color: 'yellow'! !
+
+! PinBoard methodsFor: 'initializing' !
+initialize
+
+	self clearPins ! !
+
+! PinBoard methodsFor: 'printing' !
+printOn: aStream
+
+	aStream
+		nextPutAll: 'Board'; cr;
+		nextPutAll: '    currentPin: ', self currentPin printString; cr;
+		nextPutAll: '    currentStringColor: ', self currentStringColor printString; cr;
+		nextPutAll: '    pins: ', self pins asArray printString; cr;
+		nextPutAll: '    strings: ', self strings asArray printString; cr;
+		nextPutAll: '    currentPolygon: ', self currentPolygon printString; cr;
+		nextPutAll: '    polygons: ', self polygons asArray printString; cr;
+		cr
+
+! !
+
+! PinBoard methodsFor: 'setting up pins' !
+circle
+
+	self circle: 40
+  ! !
+
+! PinBoard methodsFor: 'setting up pins' !
+circle: numberOfPins
+
+	self circleRadius: 80 pins: numberOfPins
+  ! !
+
+! PinBoard methodsFor: 'setting up pins' !
+circleRadius: radius pins: numberOfPins
+
+	| angle |
+
+	self clearPins.
+	angle := 0.0.
+
+	1 to: numberOfPins do: [:pinNumber |
+		| point |
+		point := ((angle degreesToRadians) cos @ (angle degreesToRadians) sin) * radius.
+		self addPinAt: point.
+		angle := angle + (360.0 / numberOfPins)].
+   ! !
+
+! PinBoard methodsFor: 'setting up pins' !
+circleWithCenter
+
+	self circleWithCenter: 40
+   ! !
+
+! PinBoard methodsFor: 'setting up pins' !
+circleWithCenter: numberOfPins
+
+	self circleRadius: 80 pins: numberOfPins.
+	self addPinAt: 0.0 @ 0.0
+   ! !
+
+! PinBoard methodsFor: 'setting up pins' !
+hexagon
+
+	^self hexagonWithSides: 10! !
+
+! PinBoard methodsFor: 'setting up pins' !
+hexagonWithSides: aNumber
+
+	^self regularPolygon: 6 radius: 80 startAngle: 0 pinsBetweenVertices: aNumber - 1! !
+
+! PinBoard methodsFor: 'setting up pins' !
+hideLabels
+
+	self pins do: [:pin |
+		pin label: nil] ! !
+
+! PinBoard methodsFor: 'setting up pins' !
+hidePins
+
+	self pins do: [:pin | pin visible: false] ! !
+
+! PinBoard methodsFor: 'setting up pins' !
+pentagon
+
+	^self pentagonWithSides: 10! !
+
+! PinBoard methodsFor: 'setting up pins' !
+pentagonWithSides: aNumber
+
+	^self regularPolygon: 5 radius: 80 startAngle: 90 / 5 pinsBetweenVertices: aNumber - 1! !
+
+! PinBoard methodsFor: 'setting up pins' !
+regularPolygon: numberOfCorners radius: radius startAngle: startAngle pinsBetweenVertices: pinsBetweenVertices
+
+	| angle lastPoint |
+
+	self clearPins.
+	angle := startAngle.
+	lastPoint := nil.
+
+	0 to: numberOfCorners - 1 do: [:pinNumber |
+		| point |
+		point := ((angle degreesToRadians) cos @ (angle degreesToRadians) sin) * radius.
+		lastPoint isNil ifFalse: [
+			| deltaPoint |
+			deltaPoint := (point - lastPoint) / (pinsBetweenVertices + 1) asFloat.
+			1 to: pinsBetweenVertices do: [:each |
+				self addPinAt: lastPoint + (deltaPoint * each)]
+			].
+		lastPoint := point.
+		self addPinAt: point.
+		angle := angle + (360.0 / numberOfCorners asFloat)].
+
+	lastPoint isNil ifFalse: [
+		| deltaPoint2 |
+		deltaPoint2 := (pins first location - lastPoint) / (pinsBetweenVertices + 1) asFloat.
+		1 to: pinsBetweenVertices do: [:each |
+			self addPinAt: lastPoint + (deltaPoint2 * each)]
+		]! !
+
+! PinBoard methodsFor: 'setting up pins' !
+showLabels
+
+	self pins do: [:pin |
+		pin
+			label: pin number printString;
+			labelOffset: pin location / 10] ! !
+
+! PinBoard methodsFor: 'setting up pins' !
+showPins
+
+	self pins do: [:pin | pin visible: true] ! !
+
+! PinBoard methodsFor: 'setting up pins' !
+square
+
+	^self squareWithSides: 10! !
+
+! PinBoard methodsFor: 'setting up pins' !
+squareWithSides: aNumber
+
+	^self regularPolygon: 4 radius: 80 startAngle: 45 pinsBetweenVertices: aNumber - 1! !
+
+! PinBoard methodsFor: 'setting up pins' !
+triangle
+
+	^self triangleWithSides: 10! !
+
+! PinBoard methodsFor: 'setting up pins' !
+triangleWithSides: aNumber
+
+	^self regularPolygon: 3 radius: 80 startAngle: 0 pinsBetweenVertices: aNumber - 1! !
+
+! PinBoard methodsFor: 'user art' !
+circularRainbow
+
+	| color |
+
+	self clearStrings.
+	self circleWithCenter: 80.
+
+	color := Color red: 255 green: 0 blue: 0 alpha: 255.
+
+	1 to: 79 do: [:i |
+		self
+			beginPolygon;
+			polygonColor: color;
+			moveToPin: 81;
+			moveToPin: i ;
+			moveToPin: i + 1;
+			endPolygon.
+		color := color hue: color hue + (360.0 / 80.0)].
+
+		self
+			beginPolygon;
+			polygonColor: color;
+			moveToPin: 81;
+			moveToPin: 80;
+			moveToPin: 1;
+			endPolygon.
+! !
+
+! PinBoard methodsFor: 'user art' !
+hexagonArches
+
+	| color |
+
+	self hexagonWithSides: 20.
+
+	color := Color red: 255 green: 0 blue: 0.
+
+	1 to: 20 do: [:each |
+		self color: color.
+		self moveToPin: each;
+			lineToPin: each + 20.
+		color := color hue: color hue + (360.0 / 120.0)].
+
+	21 to: 40 do: [:each |
+		self color: color.
+		self moveToPin: each;
+			lineToPin: each + 20.
+		color := color hue: color hue + (360.0 / 120.0)].
+
+	41 to: 60 do: [:each |
+		self color: color.
+		self moveToPin: each;
+			lineToPin: each + 20.
+		color := color hue: color hue + (360.0 / 120.0)].
+
+	61 to: 80 do: [:each |
+		self color: color.
+		self moveToPin: each;
+			lineToPin: each + 20.
+		color := color hue: color hue + (360.0 / 120.0)].
+
+	81 to: 100 do: [:each |
+		self color: color.
+		self moveToPin: each;
+			lineToPin: each + 20.
+		color := color hue: color hue + (360.0 / 120.0)].
+
+	101 to: 120 do: [:each |
+		self color: color.
+		self moveToPin: each;
+			lineToPin: each + 20.
+		color := color hue: color hue + (360.0 / 120.0)]
+! !
+
+! PinBoard methodsFor: 'user art' !
+hexagonDoubleArches
+
+	| color |
+
+	self hexagonWithSides: 20.
+
+	color := Color red: 255 green: 0 blue: 0.
+
+	1 to: 20 do: [:each |
+		self color: color.
+		self moveToPin: each;
+			lineToPin: each + 40.
+		color := color hue: color hue + (360.0 / 120.0)].
+
+	21 to: 40 do: [:each |
+		self color: color.
+		self moveToPin: each;
+			lineToPin: each + 40.
+		color := color hue: color hue + (360.0 / 120.0)].
+
+	41 to: 60 do: [:each |
+		self color: color.
+		self moveToPin: each;
+			lineToPin: each + 40.
+		color := color hue: color hue + (360.0 / 120.0)].
+
+	61 to: 80 do: [:each |
+		self color: color.
+		self moveToPin: each;
+			lineToPin: each + 40.
+		color := color hue: color hue + (360.0 / 120.0)].
+
+	81 to: 100 do: [:each |
+		self color: color.
+		self moveToPin: each;
+			lineToPin: each + 40.
+		color := color hue: color hue + (360.0 / 120.0)].
+
+	101 to: 120 do: [:each |
+		self color: color.
+		self moveToPin: each;
+			lineToPin: each + 40.
+		color := color hue: color hue + (360.0 / 120.0)]
+! !
+
+! PinBoard methodsFor: 'user art' !
+hexagonPolygonDoubleArches
+
+	| color |
+
+	self hexagonWithSides: 20.
+
+	color := Color red: 255 green: 0 blue: 0.
+
+	1 to: 20 do: [:each |
+		self
+			beginPolygon;
+			polygonColor: color;
+			moveToPin: each;
+			moveToPin: each + 20;
+			moveToPin: each + 40;
+			endPolygon.
+		color := color hue: color hue + (360.0 / 120.0)].
+
+	21 to: 40 do: [:each |
+		self
+			beginPolygon;
+			polygonColor: color;
+			moveToPin: each;
+			moveToPin: each + 20;
+			moveToPin: each + 40;
+			endPolygon.
+		color := color hue: color hue + (360.0 / 120.0)].
+
+	41 to: 60 do: [:each |
+		self
+			beginPolygon;
+			polygonColor: color;
+			moveToPin: each;
+			moveToPin: each + 20;
+			moveToPin: each + 40;
+			endPolygon.
+		color := color hue: color hue + (360.0 / 120.0)].
+
+	61 to: 80 do: [:each |
+		self
+			beginPolygon;
+			polygonColor: color;
+			moveToPin: each;
+			moveToPin: each + 20;
+			moveToPin: each + 40;
+			endPolygon.
+		color := color hue: color hue + (360.0 / 120.0)].
+
+	81 to: 100 do: [:each |
+		self
+			beginPolygon;
+			polygonColor: color;
+			moveToPin: each;
+			moveToPin: each + 20;
+			moveToPin: each + 40;
+			endPolygon.
+		color := color hue: color hue + (360.0 / 120.0)].
+
+	101 to: 120 do: [:each |
+		self
+			beginPolygon;
+			polygonColor: color;
+			moveToPin: each;
+			moveToPin: each + 20;
+			moveToPin: each + 40;
+			endPolygon.
+		color := color hue: color hue + (360.0 / 120.0)]
+! !
+
+! PinBoard methodsFor: 'user art' !
+mandala
+
+	| interval |
+
+	self clearStrings.
+	self circle: 30.
+
+	interval := self pins size // 2.
+
+	interval to: 1 by: -1 do: [:currentInterval |
+		1 to: self pins size do: [:start |
+			self moveToPin: start.
+			self lineToPin: start + currentInterval]].
+ ! !
+
+! PinBoard methodsFor: 'user art' !
+pentagonArches
+
+	| color |
+
+	self pentagonWithSides: 20.
+
+	color := Color red: 255 green: 0 blue: 0.
+
+	1 to: 20 do: [:each |
+		self color: color.
+		self moveToPin: each;
+			lineToPin: each + 20.
+		color := color hue: color hue + (360.0 / 80.0)].
+
+	21 to: 40 do: [:each |
+		self color: color.
+		self moveToPin: each;
+			lineToPin: each + 20.
+		color := color hue: color hue + (360.0 / 80.0)].
+
+	41 to: 60 do: [:each |
+		self color: color.
+		self moveToPin: each;
+			lineToPin: each + 20.
+		color := color hue: color hue + (360.0 / 80.0)].
+
+	61 to: 80 do: [:each |
+		self color: color.
+		self moveToPin: each;
+			lineToPin: each + 20.
+		color := color hue: color hue + (360.0 / 80.0)].
+
+	81 to: 100 do: [:each |
+		self color: color.
+		self moveToPin: each;
+			lineToPin: each + 20.
+		color := color hue: color hue + (360.0 / 80.0)]
+! !
+
+! PinBoard methodsFor: 'user art' !
+polygonFan
+
+	| color |
+
+	self clearStrings.
+	self circle: 80.
+
+	color := Color red: 255 green: 0 blue: 255 alpha: 255.
+
+	2 to: 79 do: [:i |
+		self
+			beginPolygon;
+			polygonColor: color;
+			moveToPin: 1;
+			moveToPin: i + 1;
+			moveToPin: i + 2;
+			endPolygon.
+		color := color hue: color hue + (360.0 / 80.0)]
+
+! !
+
+! PinBoard methodsFor: 'user art' !
+polygonMandala1
+
+	| color |
+
+	self clearStrings.
+	self circle: 80.
+
+	color := Color red: 255 green: 0 blue: 255 alpha: 128.
+
+	1 to: 80 do: [:i |
+		self
+			beginPolygon;
+			polygonColor: color;
+			moveToPin: i;
+			moveToPin: i + 40;
+			moveToPin: i + 41;
+			endPolygon.
+		color := color hue: color hue + (360.0 / 80.0)]
+
+! !
+
+! PinBoard methodsFor: 'user art' !
+polygonTwoPointFan
+
+	| color |
+
+	self clearStrings.
+	self circle: 80.
+
+	color := Color red: 255 green: 0 blue: 255 alpha: 255.
+
+	2 to: 79 do: [:i |
+		self
+			beginPolygon;
+			polygonColor: color;
+			moveToPin: 1;
+			moveToPin: i + 1;
+			moveToPin: i + 2;
+			endPolygon.
+		color := color hue: color hue + (360.0 / 80.0)].
+
+	color := Color red: 0 green: 255 blue: 255 alpha: 128.
+
+	41 to: 119 do: [:i |
+		self
+			beginPolygon;
+			polygonColor: color;
+			moveToPin: 40;
+			moveToPin: i + 1;
+			moveToPin: i + 2;
+			endPolygon.
+		color := color copy hue: color hue + (360.0 / 80.0) ]
+! !
+
+! PinBoard methodsFor: 'user art' !
+rgbMandala
+
+	self clearStrings.
+	self circle.
+
+	self color: 'red'.
+	1 to: 40 do: [:pin |
+		self moveToPin: pin.
+		self lineToPin: pin + 9].
+
+	self color: 'blue'.
+	1 to: 40 do: [:pin |
+		self moveToPin: pin.
+		self lineToPin: pin + 19].
+
+	self color: 'green'.
+	1 to: 40 do: [:pin |
+		self moveToPin: pin.
+		self lineToPin: pin + 15]  ! !
+
+! PinBoard methodsFor: 'user art' !
+squareArches
+
+	| color |
+
+	self squareWithSides: 20.
+
+	color := Color red: 255 green: 0 blue: 0.
+
+	1 to: 20 do: [:each |
+		self color: color.
+		self moveToPin: each;
+			lineToPin: each + 20.
+		color := color hue: color hue + (360.0 / 80.0)].
+
+	21 to: 40 do: [:each |
+		self color: color.
+		self moveToPin: each;
+			lineToPin: each + 20.
+		color := color hue: color hue + (360.0 / 80.0)].
+
+	41 to: 60 do: [:each |
+		self color: color.
+		self moveToPin: each;
+			lineToPin: each + 20.
+		color := color hue: color hue + (360.0 / 80.0)].
+
+	61 to: 80 do: [:each |
+		self color: color.
+		self moveToPin: each;
+			lineToPin: each + 20.
+		color := color hue: color hue + (360.0 / 80.0)]
+! !
+
+! PinBoard methodsFor: 'user art' !
+triangleMandala
+
+	| color |
+
+	self clearStrings.
+	self circleWithCenter: 80.
+
+	color := Color red: 255 green: 0 blue: 0 alpha: 128.
+
+	1 to: 79 do: [:i |
+		self
+			beginPolygon;
+			polygonColor: color;
+			moveToPin: 81;
+			moveToPin: i ;
+			moveToPin: i + 20;
+			endPolygon.
+		color := color hue: color hue + (360.0 / 80.0)].
+
+		self
+			beginPolygon;
+			polygonColor: color;
+			moveToPin: 81;
+			moveToPin: 80;
+			moveToPin: 21;
+			endPolygon.
+! !
+
+! PinBoard methodsFor: 'user art' !
+twoPointFan
+
+	self clearStrings.
+	self circle: 100.
+
+	self color: 'green'.
+	self moveToPin: 1.
+
+	1 to: self pins size do: [:pin |
+		self moveToPin: 1.
+		self lineToPin: pin].
+
+	self color: 'blue'.
+	1 to: self pins size do: [:pin |
+		self moveToPin: self pins size // 2 + 1.
+		self lineToPin: self pins size // 2 + 1 + pin] ! !
+
+! PinBoard class methodsFor: 'instance creation' !
+new
+
+	^super new initialize; yourself! !
+
+! PinPolygon methodsFor: 'accessing' !
+color
+
+	^color ! !
+
+! PinPolygon methodsFor: 'accessing' !
+color: aColor
+
+	color := aColor ! !
+
+! PinPolygon methodsFor: 'accessing' !
+moveToPin: aPinNumber
+
+	vertices add: aPinNumber! !
+
+! PinPolygon methodsFor: 'accessing' !
+vertices
+
+	^vertices ! !
+
+! PinPolygon methodsFor: 'accessing' !
+vertices: aCollection
+
+	vertices := aCollection ! !
+
+! PinPolygon methodsFor: 'displaying' !
+displayOn: aPen
+
+	| firstTime |
+
+	vertices isEmpty ifTrue: [^self].
+
+	firstTime := true.
+
+	aPen
+		fillStyle: self color asString;
+		fillPath: [:pen |
+			self vertices do: [:vertex | 
+				firstTime
+					ifTrue: [pen moveTo: vertex location]
+					ifFalse: [pen lineTo: vertex location].
+				firstTime := false]].
+
+	aPen lineTo: vertices first location
+
+
+! !
+
+! PinPolygon methodsFor: 'initializing' !
+initialize
+
+	self vertices: OrderedCollection new.
+ 	self color: (Color red: 255 green: 0 blue: 255 alpha: 128)! !
+
+! PinPolygon class methodsFor: 'instance creation' !
+new
+
+	^super new initialize; yourself! !
+
+! PinString methodsFor: 'accessing' !
+color
+
+	^color! !
+
+! PinString methodsFor: 'accessing' !
+color: aString
+
+	color := aString! !
+
+! PinString methodsFor: 'accessing' !
+endPin
+
+	^endPin! !
+
+! PinString methodsFor: 'accessing' !
+endPin: aPin
+
+	endPin := aPin! !
+
+! PinString methodsFor: 'accessing' !
+startPin
+
+	^startPin! !
+
+! PinString methodsFor: 'accessing' !
+startPin: aPin
+
+	startPin := aPin! !
+
+! PinString methodsFor: 'displaying' !
+displayOn: aPen
+
+	aPen
+		strokeStyle: self color asString;
+		lineFrom: self startPin location to: self endPin location! !
+
+! PinString methodsFor: 'printing' !
+printOn: aStream
+
+	aStream
+		nextPutAll: (self color isString ifTrue: [self color] ifFalse: [self color printString]);
+		nextPutAll: '-';
+		print: startPin;
+		nextPutAll: '-';
+		print: endPin! !
+
+! StringArtWindow methodsFor: 'accessing' !
+board
+
+	^board ! !
+
+! StringArtWindow methodsFor: 'accessing' !
+board: anObject
+
+	board := anObject ! !
+
+! StringArtWindow methodsFor: 'accessing' !
+currentResult
+
+	^currentResult! !
+
+! StringArtWindow methodsFor: 'accessing' !
+currentResult: anObject
+
+	currentResult := anObject! !
+
+! StringArtWindow methodsFor: 'accessing' !
+pinBoard
+
+	^board ! !
+
+! StringArtWindow methodsFor: 'accessing' !
+pinBoard: aPinBoard
+
+	board := aPinBoard ! !
+
+! StringArtWindow methodsFor: 'building' !
+buildOn: aWindowBuilder
+
+	aWindowBuilder
+		verticalLayout: '35px 1fr 200px' id: 'StringArtDiv';
+			horizontalLayout: '5sp 100px 100px 100px 100px 100px 100px 100px 1fr' id: 'toolBar';
+				pushButton: 'clearStrings';
+					label: 'Clear Strings';
+					action: [self clearScreen. self board clearStrings. self update];
+				end;
+				pushButton: 'clearPins';
+					label: 'Clear Pins';
+					action: [self clearScreen. self board clearPins. self update];
+				end;
+				pushButton: 'draw';
+					label: 'Draw';
+					action: [self doAndDrawBoard];
+				end;
+				pushButton: 'hideLabels';
+					label: 'Hide Labels';
+					action: [self clearScreen. self board hideLabels. self update];
+				end;
+				pushButton: 'showLabels';
+					label: 'Show Labels';
+					action: [self clearScreen. self board showLabels. self update];
+				end;
+				pushButton: 'inspect';
+					label: 'Inspect';
+					action: [self board inspect. self update];
+				end;
+				pushButton: 'browse';
+					label: 'Browse';
+					action: [CodeBrowser openOnClass: self board class];
+				end;
+				divId: 'toolbarWhiteSpace';
+				end;
+			end;
+		horizontalLayout: '1fr 1fr' id: 'canvasLayout';
+			richTextWidget: #workspace;
+				menu: self codeMenu;
+				subject: self;
+			end;
+			canvasWidget: #canvas;
+			end;
+		end;
+		richTextWidget: #boardView;
+			subject: self board;
+		end;
+	end  ! !
+
+! StringArtWindow methodsFor: 'drawing' !
+backgroundColor: aString
+
+	self canvasWidget backgroundColorString: aString; setStyle! !
+
+! StringArtWindow methodsFor: 'drawing' !
+drawBoard
+
+	self board displayOn: self pen  ! !
+
+! StringArtWindow methodsFor: 'initializing' !
+initialize
+
+	super initialize.
+	self board: PinBoard new.
+	self currentResult: self board! !
+
+! StringArtWindow methodsFor: 'menus' !
+doAndDrawBoard
+
+	self clearScreen.
+	self disableWhile: [currentResult := (self bindingAt: #workspace) evaluateAll].
+	self update    ! !
+
+! StringArtWindow methodsFor: 'menus' !
+drawWith: aDictionary
+
+	self clearScreen.
+	self disableWhile: [currentResult := (self bindingAt: #workspace) evaluateAll].
+	self update    ! !
+
+! StringArtWindow methodsFor: 'opening' !
+defaultTitle
+
+	^'String Art'! !
+
+! StringArtWindow methodsFor: 'opening' !
+defaultWindowExtent
+
+	^1000 @ 700! !
+
+! StringArtWindow methodsFor: 'opening' !
+postOpen
+
+	super postOpen.
+	self update! !
+
+! StringArtWindow methodsFor: 'setting up pins' !
+circleRadius: radius pins: numberOfPins
+
+	self board circleRadius: radius pins: numberOfPins  ! !
+
+! StringArtWindow methodsFor: 'setting up pins' !
+regularPolygon: numberOfPins radius: radius startAngle: startAngle pinsBetweenVertices: pinsBetweenVertices
+
+	self board regularPolygon: numberOfPins radius: radius startAngle: startAngle pinsBetweenVertices: pinsBetweenVertices  ! !
+
+! StringArtWindow methodsFor: 'updating' !
+drawBoardView
+
+	| stream |
+	stream := WriteStream on: (String new: 1000).
+	self currentResult printOn: stream.
+
+	(self bindingAt: #boardView) text: stream contents
+! !
+
+! StringArtWindow methodsFor: 'updating' !
+update
+
+	self drawBoard.
+	self drawBoardView.
+	super update ! !
+
+! StringArtWindow methodsFor: 'widgets' !
+clearPinsWidget
+
+	^self bindingAt: #clearPins ifAbsentPut: [
+		PushButtonComponent new
+			bindTo: self as: 'clearPins';
+			label: 'Clear Pins';
+			actionBlock: [self clearScreen. self pinBoard clearPins. self update];
+			yourself] ! !
+
+! StringArtWindow methodsFor: 'widgets' !
+clearStringsWidget
+
+	^self bindingAt: #clearStrings ifAbsentPut: [
+		PushButtonComponent new
+			bindTo: self as: 'clearStrings';
+			label: 'Clear Strings';
+			actionBlock: [self clearScreen. self pinBoard clearStrings. self update];
+			yourself] ! !
+
+! StringArtWindow methodsFor: 'widgets' !
+drawWidget
+
+	^self bindingAt: #draw ifAbsentPut: [
+		PushButtonComponent new
+			bindTo: self as: 'draw';
+			label: 'Draw';
+			actionBlock: [:args | self drawWith: args];
+			yourself] ! !
+
+! StringArtWindow methodsFor: 'widgets' !
+hideLabelsWidget
+
+	^self bindingAt: #hideLabels ifAbsentPut: [
+		PushButtonComponent new
+			bindTo: self as: 'hideLabels ';
+			label: 'Hide Labels';
+			actionBlock: [self clearScreen. self pinBoard hideLabels. self update];
+			yourself] ! !
+
+! StringArtWindow methodsFor: 'widgets' !
+showLabelsWidget
+
+	^self bindingAt: #showLabels ifAbsentPut: [
+		PushButtonComponent new
+			bindTo: self as: 'showLabels ';
+			label: 'Show Labels';
+			actionBlock: [self clearScreen. self pinBoard showLabels. self update];
+			yourself] ! !
+
+KitManager default currentKit allDefinedClasses: #(Pin PinBoard PinPolygon PinString StringArtWindow) andMethods: #() !
+
+KitManager default currentKit allDefinedMethodsFor: Pin methods: #(#'displayLabelOn:' #'displayOn:' #'displayPinOn:' #fillColor #'fillColor:' #initialize #label #'label:' #labelColor #'labelColor:' #labelFont #'labelFont:' #labelOffset #'labelOffset:' #lineColor #'lineColor:' #location #'location:' #number #'number:' #'printOn:' #radius #'radius:' #visible #'visible:') !
+
+KitManager default currentKit allDefinedMethodsFor: Pin class methods: #(#new) !
+
+KitManager default currentKit allDefinedMethodsFor: PinPolygon methods: #(#color #'color:' #'displayOn:' #initialize #'moveToPin:' #vertices #'vertices:') !
+
+KitManager default currentKit allDefinedMethodsFor: PinPolygon class methods: #(#new) !
+
+KitManager default currentKit allDefinedMethodsFor: PinString methods: #(#color #'color:' #'displayOn:' #endPin #'endPin:' #'printOn:' #startPin #'startPin:') !
+
+KitManager default currentKit allDefinedMethodsFor: PinString class methods: #() !
+
+KitManager default currentKit allDefinedMethodsFor: StringArtWindow methods: #(#'backgroundColor:' #board #'board:' #'buildOn:' #'circleRadius:pins:' #clearPinsWidget #clearStringsWidget #currentResult #'currentResult:' #defaultTitle #defaultWindowExtent #doAndDrawBoard #drawBoard #drawBoardView #drawWidget #'drawWith:' #hideLabelsWidget #initialize #pinBoard #'pinBoard:' #postOpen #'regularPolygon:radius:startAngle:pinsBetweenVertices:' #showLabelsWidget #update) !
+
+KitManager default currentKit allDefinedMethodsFor: StringArtWindow class methods: #() !
+
+KitManager default currentKit allDefinedMethodsFor: PinBoard methods: #(#'addPinAt:' #beginPolygon #black #blue #circle #'circle:' #'circleRadius:pins:' #circleWithCenter #'circleWithCenter:' #circularRainbow #clear #clearPins #clearPolygons #clearStrings #'color:' #currentPin #'currentPin:' #currentPolygon #'currentPolygon:' #currentStringColor #'currentStringColor:' #'displayOn:' #endPolygon #gray #green #hexagon #hexagonArches #hexagonDoubleArches #hexagonPolygonDoubleArches #'hexagonWithSides:' #hideLabels #hidePins #initialize #'lineToPin:' #mandala #'moveToPin:' #pentagon #pentagonArches #'pentagonWithSides:' #'pinAt:' #pins #'pins:' #'polygonColor:' #polygonFan #polygonMandala1 #polygonTwoPointFan #polygons #'polygons:' #'printOn:' #red #'regularPolygon:radius:startAngle:pinsBetweenVertices:' #rgbMandala #showLabels #showPins #square #squareArches #'squareWithSides:' #strings #'strings:' #triangle #triangleMandala #'triangleWithSides:' #twoPointFan #yellow) !
+
+KitManager default currentKit allDefinedMethodsFor: PinBoard class methods: #(#new) !
+
+KitManager default finishFileinKit !
