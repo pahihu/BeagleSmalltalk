@@ -40763,3 +40763,7 @@ doit ^[CodeBrowser open] value ! !
 doit ^[0 tinyBenchmarks] value ! !
 ! Doit class methodsFor: 'doit' !
 doit ^[BeagleSystem saveImage] value ! !
+! Doit class methodsFor: 'doit' !
+doit ^[CodeBrowser open] value ! !
+! Doit class methodsFor: 'doit' !
+doit ^[0 tinyBenchmarks] value ! !
