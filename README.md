@@ -1,4 +1,13 @@
-Beagle Smalltalk
+# Changes
+
+I have compiled the code with [Cosmopolitan Libc](https://justine.lol/cosmopolitan/index.html), thus the binary runs on Linux/Windows/macOS/RPi. The binary is _beagle.ape_, rename as you wish. Ported the canonical tinyBenchmarks from Squeak.
+
+On macOS turn off AirPlay, because it uses port 5000. (General - AirDrop & Continuity - AirPlay).
+
+**Note**: Good luck!
+
+
+# Beagle Smalltalk
 Version 1.1
 
 Copyright 2025 Simberon Incorporated

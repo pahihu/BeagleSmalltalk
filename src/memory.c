@@ -368,6 +368,7 @@ uint64_t gcCopyToInactiveStack()
 
 		gcCopyToInactiveObjectContents(frame);
 	}
+    return 0;
 }
 
 uint64_t gcCopyToInactiveRegistry()

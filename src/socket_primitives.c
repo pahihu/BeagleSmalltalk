@@ -131,13 +131,20 @@ void primSocketBind()
 {
 	oop receiver = getReceiver();
 	oop handle = instVarAtInt(receiver, 0);
+    int sock_fd, opt;
 
 	if (!isUninterpretedBytes(handle)) {
 //		LOGI("Socket bind failed 1");
 		PRIMITIVE_FAIL(2);
 	}
 
-	int result = bind(asSocket(handle) -> socketHandle,
+    sock_fd = asSocket(handle) -> socketHandle;
+    opt = 1;
+    if (setsockopt(sock_fd, SOL_SOCKET, SO_REUSEADDR, &opt, sizeof(opt)) < 0) {
+		PRIMITIVE_FAIL(errno);
+    }
+
+	int result = bind(sock_fd,
 		(struct sockaddr *) &asSocket(handle) -> address,
 		sizeof (struct sockaddr_in));
 
@@ -238,7 +245,8 @@ void primSocketRecv()
 		(char *) asObjectHeader(buffer)->bodyPointer,
 		stIntToC(length));
 
-/*	{
+/*
+	{
 	int i;
 	LOGI("Socket receive - length: %"PRIx64"", result);
 	for (i = 0; i < result; i++)
@@ -373,6 +381,9 @@ struct pollfd fds[256];
 // Return:
 // 0: socket changes
 // 1: timeout
+
+#define ST_POLLIN   1
+#define ST_POLLHUP  16
 			   
 void primSocketPoll()
 {
@@ -402,6 +413,7 @@ void primSocketPoll()
 		fds[i].fd = asSocket(handle)->socketHandle;
 		fds[i].events = stIntToC(indexedVarAtInt(events, i+1));
 		fds[i].revents = stIntToC(indexedVarAtInt(revents, i+1));
+        if (ST_POLLIN == fds[i].events) fds[i].events = POLLIN;
 	}
 
 	cTimeout = stIntToC(timeout);
@@ -411,6 +423,13 @@ void primSocketPoll()
 	sigemptyset(&sigmask);
 
 	pollResult = ppoll (fds, indexedObjectSize(handles), &tmo_p, &sigmask);
+
+	for (i=0; i<indexedObjectSize(handles); i++) {
+        if (POLLIN & fds[i].events) fds[i].events = ST_POLLIN;
+        int revents = fds[i].revents; fds[i].revents = 0;
+        if ( POLLIN & revents) fds[i].revents += ST_POLLIN;
+        if (POLLHUP & revents) fds[i].revents += ST_POLLHUP;
+        }
 
 	for (i=0; i<indexedObjectSize(handles); i++) {
 		indexedVarAtIntPut(events, i+1, cIntToST(fds[i].events));

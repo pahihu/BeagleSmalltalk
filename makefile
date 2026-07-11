@@ -1,14 +1,17 @@
 # Beagle Smalltalk 
 #    Copyright 2025 Simberon Incorporated
 
+CCOMP = cosmocc
+# CCOMP = gcc
+OPT = -O3
 ifeq ($(OS),Windows_NT)
-	CC = gcc -c -m64 -g -DWINDOWS -D_GNU_SOURCE -O3
+	CC = $(CCOMP) -c -m64 -DWINDOWS -D_GNU_SOURCE $(OPT)
 	EXE=beagle.exe
 else
-	CC = gcc -c -m64 -g -D_GNU_SOURCE
+	CC = $(CCOMP) -c -m64 -D_GNU_SOURCE $(OPT)
 	EXE=beagle
 endif
-LN = gcc -m64 -g -O3
+LN = $(CCOMP) -m64 $(OPT)
 SRC = src
 OBJ = obj
 
