@@ -1,6 +1,7 @@
 // Beagle Smalltalk Copyright (c) 2025 Simberon Incorporated
 
-var webAddress = "ws://127.0.0.1:4000"
+// var webAddress = "ws://127.0.0.1:4000"
+var webAddress = "ws://10.3.0.98:4000"
 
 var connection;
 var globals;
