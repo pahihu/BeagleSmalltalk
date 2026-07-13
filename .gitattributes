@@ -1,3 +1,14 @@
-*.st eol=crlf
-*.cha eol=crlf
-*.kit eol=crlf
+# default
+* text=auto
+
+# source code
+*.c text
+*.h text
+
+# always CRLF
+*.st text eol=crlf
+*.cha text eol=crlf
+*.kit text eol=crlf
+
+# always binary
+*.im binary
