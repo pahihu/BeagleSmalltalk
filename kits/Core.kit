@@ -1796,7 +1796,7 @@ startAcceptSocket
 	Smalltalk at: #CurrentSocketDispatcher put: SocketDispatcher new.
 	(Smalltalk at: #CurrentSocketDispatcher)
 		addHandler: (SocketAcceptHandler new
-			portNumber: 5000;
+			portNumber: 4000;
 			clientHandler: (SocketLauncher new
 				screenHandlerClass: SocketUIScreenHandler;
 				commandHandlerClass: DevelopmentCommandHandler;

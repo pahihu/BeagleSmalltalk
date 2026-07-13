@@ -103,7 +103,7 @@ function connectToVM()
 {
 	document.getElementById("result").value = "Connecting...";
 //	screen = new Screen();
-	connection = new WebSocket("ws://localhost:5100");
+	connection = new WebSocket("ws://localhost:4100");
 	connection.onopen = function(evt) {
 		document.getElementById("result").value = "Connected!! ";
 		document.getElementById("workspace").addEventListener("keydown", function(e) {

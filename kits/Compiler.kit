@@ -5270,9 +5270,9 @@ whileEmbeddedBlockDo: aBlock
 ! CodeGenerator methodsFor: 'special words' !
 pushCopiedSelf
 
-	| selfVariable |
-	selfVariable := self selfVariable.
-	self pushLocalVariableReference: selfVariable! !
+    | selfVariable |
+    selfVariable := self selfVariable.
+    selfVariable notNil ifTrue: [self pushLocalVariableReference: selfVariable]! !
 
 ! CodeGenerator methodsFor: 'special words' !
 pushFalse
@@ -5302,11 +5302,12 @@ pushTrue
 ! CodeGenerator methodsFor: 'special words' !
 selfVariable
 
-	| selfVariable |
-	selfVariable := (self methodLocalVariableAnalysis scopeFor: nodeStack last)
-				copiedVariables detect: [:eachVariable | eachVariable isSelf]
-					ifNone: [self compileError: 'Compiler error'].
-	^selfVariable! !
+    | selfVariable |
+    selfVariable := (self methodLocalVariableAnalysis scopeFor: nodeStack last)
+                copiedVariables detect: [:eachVariable | eachVariable isSelf]
+                    ifNone: [nil].
+    "was [self compilerError: 'Compiler error']"
+    ^selfVariable! !
 
 ! CodeGenerator methodsFor: 'testing' !
 globalAssociationFor: aVariable

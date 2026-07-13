@@ -40767,3 +40767,49 @@ doit ^[BeagleSystem saveImage] value ! !
 doit ^[CodeBrowser open] value ! !
 ! Doit class methodsFor: 'doit' !
 doit ^[0 tinyBenchmarks] value ! !
+! Doit class methodsFor: 'doit' !
+doit ^[CodeBrowser open] value ! !
+! Doit class methodsFor: 'doit' !
+doit ^[BeagleSystem class methodsFor: 'startup'] value ! !
+! BeagleSystem class methodsFor: 'startup' !
+startAcceptSocket
+
+	Smalltalk at: #CurrentSocketDispatcher put: SocketDispatcher new.
+	(Smalltalk at: #CurrentSocketDispatcher)
+		addHandler: (SocketAcceptHandler new
+			portNumber: 6000;
+			clientHandler: (SocketLauncher new
+				screenHandlerClass: SocketUIScreenHandler;
+				commandHandlerClass: DevelopmentCommandHandler;
+				yourself);
+			yourself);
+		timeoutHandler: (SocketTimeoutHandler new
+			yourself);
+		startPollLoop.
+
+ ! !
+! Doit class methodsFor: 'doit' !
+doit ^[BeagleSystem saveImage] value ! !
+! Doit class methodsFor: 'doit' !
+doit ^[CodeBrowser open] value ! !
+! Doit class methodsFor: 'doit' !
+doit ^[BeagleSystem class methodsFor: 'startup'] value ! !
+! BeagleSystem class methodsFor: 'startup' !
+startAcceptSocket
+
+	Smalltalk at: #CurrentSocketDispatcher put: SocketDispatcher new.
+	(Smalltalk at: #CurrentSocketDispatcher)
+		addHandler: (SocketAcceptHandler new
+			portNumber: 4000;
+			clientHandler: (SocketLauncher new
+				screenHandlerClass: SocketUIScreenHandler;
+				commandHandlerClass: DevelopmentCommandHandler;
+				yourself);
+			yourself);
+		timeoutHandler: (SocketTimeoutHandler new
+			yourself);
+		startPollLoop.
+
+ ! !
+! Doit class methodsFor: 'doit' !
+doit ^[BeagleSystem saveImage] value ! !
