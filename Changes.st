@@ -72,3 +72,21 @@ tinyBenchmarks
 
 	^ ((n1 * 500000 * 1000) // t1) asString, ' bytecodes/sec; ',
 	  ((r * 1000) // t2) asString, ' sends/sec'! !
+
+! BeagleSystem class methodsFor: 'startup' !
+startAcceptSocket
+
+    Smalltalk at: #CurrentSocketDispatcher put: SocketDispatcher new.
+    (Smalltalk at: #CurrentSocketDispatcher)
+        addHandler: (SocketAcceptHandler new
+            portNumber: 4000;
+            clientHandler: (SocketLauncher new
+                screenHandlerClass: SocketUIScreenHandler;
+                commandHandlerClass: DevelopmentCommandHandler;
+                yourself);
+            yourself);
+        timeoutHandler: (SocketTimeoutHandler new
+            yourself);
+        startPollLoop.
+
+! !
