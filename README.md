@@ -2,7 +2,7 @@
 
 I have compiled the code with [Cosmopolitan Libc](https://justine.lol/cosmopolitan/index.html), thus the binary runs on Linux/Windows/macOS/RPi. The binary is _beagle.ape_, rename as you wish. Ported the canonical tinyBenchmarks from Squeak.
 
-On macOS turn off AirPlay, because it uses port 5000. (General - AirDrop & Continuity - AirPlay).
+The WebSocket ports are changed to 4000 and 4100 respectively, to avoid clash with macOS AirPlay.
 
 **Note**: Good luck!
 
