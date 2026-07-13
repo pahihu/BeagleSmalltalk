@@ -16,8 +16,8 @@
 char logString[10000], *logPtr;
 int already_hooked_up = 0;
 char *imageFilename;
-int webSocketPortNumber = 5000;
-int debugWebSocketPort = 5100;
+int webSocketPortNumber = 4000;
+int debugWebSocketPort = 4100;
 
 uint64_t readFromFile(uint8_t *buffer, uint64_t size, void *data){
     FILE *memoryStream = (FILE *) data;
